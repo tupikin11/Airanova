@@ -1,0 +1,1446 @@
+<!doctype html>
+<html lang="uk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AiraNova Studio</title>
+<meta name="description" content="Студія, що будує сайти, автоматизації для бізнесу й ШІ-агентів: від простої зв'язки систем до пульта всього бізнесу в телефоні. WooCommerce, KeyCRM, Checkbox, Finmap, WayForPay, Нова пошта, Google Sheets, Telegram, Python.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: диспетчерська. Один фіксований 3D-шар частинок за всім сайтом, поверх нього скляні панелі-пульти; сигнал (бурштин) біжить по холодній (лід) схемі. */
+:root{
+  color-scheme:dark;
+  --bg:#04060c; --bg2:#090d18; --panel:rgba(120,150,255,.055); --panel2:rgba(10,14,26,.82);
+  --line:rgba(150,180,255,.16); --fg:#eaf0ff; --muted:#93a0c0;
+  --sig:#ff8a1f; --sig2:#ffc46b; --ice:#6fe3ff; --ok:#5dffb0; --bad:#ff5d7a;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Onest","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  --r:18px; --w:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--f-body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ice);outline-offset:3px;border-radius:6px}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;background:radial-gradient(1200px 700px at 75% 10%,#0d1530 0%,var(--bg) 60%)}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;background:
+  linear-gradient(transparent 0,transparent calc(100% - 1px),rgba(150,180,255,.05) 100%) 0 0/100% 56px,
+  linear-gradient(90deg,transparent 0,transparent calc(100% - 1px),rgba(150,180,255,.05) 100%) 0 0/56px 100%;
+  mask-image:radial-gradient(ellipse at 50% 30%,#000 10%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000 10%,transparent 75%)}
+#glow{position:fixed;left:0;top:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;z-index:1;pointer-events:none;
+  background:radial-gradient(circle,rgba(111,227,255,.10),rgba(255,138,31,.05) 40%,transparent 68%);opacity:0;transition:opacity .4s;will-change:transform}
+#bar{position:fixed;left:0;top:0;height:2px;width:100%;z-index:30;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--ice),var(--sig))}
+.wrap{max-width:var(--w);margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+main,header.nav,footer{position:relative;z-index:2}
+
+/* nav */
+header.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(4,6,12,.55);border-bottom:1px solid var(--line)}
+header.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+.logo{font:800 17px/1 var(--f-display);text-decoration:none;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+.logo i{width:12px;height:12px;border-radius:50%;background:var(--sig);box-shadow:0 0 0 4px rgba(255,138,31,.18),0 0 22px var(--sig);animation:beat 2.4s infinite}
+.logo b{color:var(--ice);font-weight:800}
+@keyframes beat{50%{box-shadow:0 0 0 8px rgba(255,138,31,0),0 0 30px var(--sig)}}
+nav.links{display:flex;gap:26px}
+nav.links a{font:500 14px var(--f-body);color:var(--muted);text-decoration:none;position:relative;padding:6px 0}
+nav.links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ice);transform:scaleX(0);transform-origin:0 50%;transition:transform .3s}
+nav.links a:hover{color:var(--fg)} nav.links a:hover::after{transform:scaleX(1)}
+
+/* buttons */
+.btn{--bx:0px;--by:0px;display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;border:1px solid transparent;cursor:pointer;text-decoration:none;
+  font:600 15px/1 var(--f-body);background:linear-gradient(100deg,var(--sig),var(--sig2));color:#1a0d00;transform:translate(var(--bx),var(--by));transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s;box-shadow:0 0 0 0 rgba(255,138,31,.5)}
+.btn:hover{box-shadow:0 10px 40px -8px rgba(255,138,31,.7)}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ice);box-shadow:0 10px 40px -12px rgba(111,227,255,.6)}
+.btn.sm{padding:10px 16px;font-size:14px}
+.btn svg{width:16px;height:16px}
+
+/* hero */
+.hero{min-height:min(92vh,880px);display:flex;align-items:center;padding-block:72px 40px}
+.hero .wrap{width:100%}
+.eyebrow{font:400 12.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ice);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--ice)}
+.hero h1{font:800 clamp(34px,6.4vw,84px)/1.02 var(--f-display);letter-spacing:-.02em;margin:22px 0 26px;max-width:14ch;text-wrap:balance}
+.hero h1 .rot{display:block;color:transparent;background:linear-gradient(95deg,var(--ice) 0%,#b9f1ff 40%,var(--sig) 100%);-webkit-background-clip:text;background-clip:text;min-height:1.05em;white-space:nowrap}
+.hero h1 .rot::after{content:"";display:inline-block;width:.07em;height:.8em;margin-left:.08em;background:var(--sig);vertical-align:-.04em;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.lead{font-size:clamp(17px,1.5vw,20px);color:var(--muted);max-width:56ch}
+.lead b{color:var(--fg);font-weight:500}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.hud{display:flex;flex-wrap:wrap;gap:14px;margin-top:54px}
+.hud>div{display:flex;align-items:center;gap:14px;padding:14px 20px 14px 16px;border:1px solid var(--line);border-radius:14px;background:rgba(4,6,12,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-width:290px;transition:border-color .3s,transform .3s}
+.hud>div:hover{border-color:var(--sig);transform:translateY(-3px)}
+.hud b{font:800 34px/1 var(--f-display);color:transparent;background:linear-gradient(120deg,var(--ice),var(--sig));-webkit-background-clip:text;background-clip:text;white-space:nowrap}
+.hud span{font:400 13.5px/1.4 var(--f-body);color:var(--muted)}
+
+/* marquee */
+.marq{border-block:1px solid var(--line);background:rgba(4,6,12,.5);overflow:hidden;padding-block:18px;backdrop-filter:blur(6px)}
+.marq div{display:flex;gap:14px;width:max-content;animation:marq 55s linear infinite}
+.marq .it{display:inline-flex;align-items:center;gap:12px;padding:9px 20px 9px 9px;border:1px solid var(--line);border-radius:14px;background:rgba(10,14,26,.7);font:600 15px/1 var(--f-display);white-space:nowrap;transition:border-color .3s,transform .3s}
+.marq .it:hover{border-color:var(--ice);transform:translateY(-2px)}
+.marq .lg{flex:none;width:38px;height:38px;border-radius:10px;background:#fff;display:grid;place-items:center}
+.marq .lg{overflow:hidden}
+.marq .lg img{width:100%;height:100%;display:block;object-fit:contain}
+.marq .lg svg{width:22px;height:22px;display:block}
+.marq .lg.m{background:rgba(111,227,255,.08);border:1px solid rgba(111,227,255,.4);color:var(--ice);font:600 13px/1 var(--f-mono)}
+.marq:hover div{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* sections */
+section.s{padding-block:clamp(72px,10vw,130px);scroll-margin-top:40px}
+.head{display:grid;gap:16px;margin-bottom:44px;max-width:780px}
+.head h2{font:800 clamp(26px,3.6vw,46px)/1.08 var(--f-display);letter-spacing:-.015em;text-wrap:balance}
+.head p{color:var(--muted);font-size:17.5px;max-width:62ch}
+.rv{opacity:.35;transform:translateY(26px);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+/* glass card with cursor light + tilt */
+.card{--mx:50%;--my:50%;position:relative;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2);padding:26px;overflow:hidden;min-width:0;
+  transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out,border-color .3s}
+.card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(420px circle at var(--mx) var(--my),rgba(111,227,255,.16),transparent 60%)}
+.card:hover{border-color:rgba(111,227,255,.5)} .card:hover::before{opacity:1}
+.card>*{position:relative}
+.card h3{font:600 17px/1.25 var(--f-display);margin-bottom:12px}
+.card p,.card li{color:var(--muted)}
+.tag{display:inline-block;font:400 11.5px/1 var(--f-mono);padding:6px 9px;border:1px solid var(--line);border-radius:6px;color:var(--ice);margin:10px 6px 0 0}
+.note{font:400 12px/1.5 var(--f-mono);color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.note::before{content:"i";flex:none;width:16px;height:16px;border:1px solid var(--muted);border-radius:50%;font-size:10px;line-height:14px;text-align:center}
+
+/* services */
+.svc{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.svc .card{padding:30px;display:flex;flex-direction:column;gap:14px}
+.svc .n{font:400 12px var(--f-mono);color:var(--sig);letter-spacing:.12em;text-transform:uppercase}
+.svc h3{font-size:21px;margin:0}
+.svc ul{margin:0;padding:0;list-style:none;display:grid;gap:9px}
+.svc li{padding-left:20px;position:relative;font-size:15.5px}
+.svc li::before{content:"";position:absolute;left:0;top:.62em;width:10px;height:1px;background:var(--ice)}
+.glyph{height:120px;border-radius:12px;border:1px solid var(--line);background:#060914;overflow:hidden;position:relative}
+.glyph canvas{width:100%;height:100%;display:block}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:stretch}
+.stage{position:relative;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2);padding:30px 26px;min-width:0}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.stage path.w{fill:none;stroke:rgba(150,180,255,.28);stroke-width:1.5;stroke-dasharray:4 6}
+.stage path.w.lit{stroke:var(--sig);stroke-dasharray:none;filter:drop-shadow(0 0 6px var(--sig));transition:stroke .3s}
+.stage circle.p{fill:#fff;filter:drop-shadow(0 0 8px var(--sig)) drop-shadow(0 0 16px var(--sig))}
+.nodes{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:repeat(4,auto);gap:16px 13%;align-items:center}
+.node{border:1px solid var(--line);border-radius:14px;background:#070b16;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .3s,box-shadow .3s,transform .3s;min-width:0}
+.node .ic{flex:none;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font:600 11px/1 var(--f-mono);color:var(--ice);border:1px solid var(--line);background:rgba(111,227,255,.06);transition:all .3s}
+.node b{display:block;font:600 14px/1.2 var(--f-body)} .node small{display:block;font:400 11.5px/1.3 var(--f-mono);color:var(--muted)}
+.node.on{border-color:var(--sig);box-shadow:0 0 0 1px var(--sig),0 0 34px -6px rgba(255,138,31,.7);transform:scale(1.035)}
+.node.on .ic{background:var(--sig);color:#1a0d00;border-color:var(--sig)}
+.node.done{border-color:rgba(93,255,176,.55)} .node.done .ic{color:var(--ok);border-color:rgba(93,255,176,.55);background:rgba(93,255,176,.08)}
+#n-site{grid-column:1;grid-row:1/3} #n-pay{grid-column:1;grid-row:3/5} #n-crm{grid-column:2;grid-row:2/4}
+#n-prro{grid-column:3;grid-row:1} #n-fin{grid-column:3;grid-row:2} #n-np{grid-column:3;grid-row:3} #n-tg{grid-column:3;grid-row:4}
+.stagebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-top:26px;position:relative}
+.console{border:1px solid var(--line);border-radius:var(--r);background:#05070e;display:flex;flex-direction:column;min-height:340px;min-width:0;overflow:hidden}
+.console header{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line);font:400 12px var(--f-mono);color:var(--muted)}
+.console header i{width:9px;height:9px;border-radius:50%;background:var(--line)} .console header i:first-child{background:var(--sig)}
+.console header span{margin-left:8px}
+#log{flex:1;padding:14px 16px;font:400 12.5px/1.75 var(--f-mono);color:var(--muted);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+#log div{animation:line .35s both;overflow-wrap:anywhere} #log div b{color:var(--ok);font-weight:400} #log div u{color:var(--sig);text-decoration:none}
+@keyframes line{from{opacity:0;transform:translateY(8px)}}
+.receipt{margin:0 16px 16px;padding:14px 16px;border-radius:4px 4px 0 0;background:#f2f4fa;color:#10131c;font:400 12px/1.6 var(--f-mono);
+  clip-path:polygon(0 0,100% 0,100% 100%,96% 94%,92% 100%,88% 94%,84% 100%,80% 94%,76% 100%,72% 94%,68% 100%,64% 94%,60% 100%,56% 94%,52% 100%,48% 94%,44% 100%,40% 94%,36% 100%,32% 94%,28% 100%,24% 94%,20% 100%,16% 94%,12% 100%,8% 94%,4% 100%,0 94%);
+  padding-bottom:22px;max-height:0;opacity:0;margin-top:0;transition:max-height .7s cubic-bezier(.2,.8,.2,1),opacity .3s;overflow:hidden}
+.receipt.out{max-height:190px;opacity:1}
+.receipt b{display:flex;justify-content:space-between;font-weight:600;border-top:1px dashed #9aa;margin-top:6px;padding-top:6px}
+.receipt span{display:flex;justify-content:space-between;gap:10px}
+
+/* demos */
+.demos{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.demo{display:flex;flex-direction:column;gap:16px;padding:0;background:var(--panel2)}
+.demo>.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.demo>.top h3{margin:0;font-size:15px}
+.pill{font:400 11px/1 var(--f-mono);padding:6px 9px;border-radius:999px;border:1px solid rgba(255,138,31,.5);color:var(--sig2);white-space:nowrap}
+.demo>.body{padding:4px 22px 22px;display:flex;flex-direction:column;gap:14px;flex:1;min-width:0}
+/* chat */
+#chat{height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.msg{max-width:88%;padding:11px 14px;border-radius:14px;font-size:14.5px;line-height:1.5;animation:line .3s both;overflow-wrap:anywhere}
+.msg.a{align-self:flex-start;background:rgba(111,227,255,.08);border:1px solid rgba(111,227,255,.25);border-bottom-left-radius:4px}
+.msg.u{align-self:flex-end;background:linear-gradient(100deg,var(--sig),var(--sig2));color:#1a0d00;border-bottom-right-radius:4px}
+.msg.t i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:var(--ice);animation:dot 1s infinite} .msg.t i:nth-child(2){animation-delay:.15s} .msg.t i:nth-child(3){animation-delay:.3s}
+@keyframes dot{50%{opacity:.2;transform:translateY(-3px)}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:8px 12px;font-size:13px;cursor:pointer;color:var(--fg);transition:all .2s}
+.chips button:hover{border-color:var(--ice);background:rgba(111,227,255,.08)}
+#chatf{display:flex;gap:8px} #chatf input{flex:1;min-width:0;background:#05070e;border:1px solid var(--line);border-radius:999px;padding:11px 16px;color:var(--fg);font:400 14px var(--f-body)}
+#chatf input::placeholder{color:#5c6887}
+/* dash */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.kpi small{display:block;font:400 11px/1.3 var(--f-mono);color:var(--muted)} .kpi b{font:600 clamp(17px,2vw,24px)/1.3 var(--f-display);font-variant-numeric:tabular-nums}
+.kpi b.up{color:var(--ok)}
+#chart{width:100%;height:170px;display:block}
+.tick{display:flex;justify-content:space-between;gap:10px;font:400 11.5px var(--f-mono);color:var(--muted)} .tick b{color:var(--ice);font-weight:400}
+/* sync */
+.demo.wide{grid-column:1/-1}
+.sync{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;align-items:start}
+.tblw{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;font:400 13px/1.3 var(--f-mono);font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap} th{color:var(--muted);font-weight:400;font-size:11.5px}
+td.num,th.num{text-align:right}
+tr{transition:background .25s} tr.scan{background:rgba(111,227,255,.1)} tr.bad{background:rgba(255,93,122,.1)} tr.bad td.st{color:var(--bad)} tr.good td.st{color:var(--ok)} tr.fixed{background:rgba(93,255,176,.07)}
+.syncside{display:flex;flex-direction:column;gap:14px} .syncside p{color:var(--muted);font-size:15px}
+#syncres{font:400 13px/1.6 var(--f-mono);color:var(--muted);min-height:3.2em}
+
+/* cases */
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.case{display:flex;flex-direction:column;gap:6px}
+.case .res{color:var(--fg);font-weight:500;margin-top:auto;padding-top:12px;border-top:1px dashed var(--line)}
+.case.aira{grid-column:span 3;display:grid;grid-template-columns:1.1fr 1fr;gap:26px;align-items:center;border-color:rgba(255,138,31,.4)}
+.slot{border:1px dashed rgba(255,138,31,.55);border-radius:14px;min-height:190px;display:grid;place-items:center;text-align:center;padding:20px;background:repeating-linear-gradient(135deg,rgba(255,138,31,.05) 0 12px,transparent 12px 24px);font:400 12.5px/1.6 var(--f-mono);color:var(--sig2)}
+
+/* process */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2);overflow:hidden}
+.step{padding:28px 24px;border-right:1px solid var(--line);position:relative;transition:background .3s;min-width:0}
+.step:last-child{border-right:0} .step:hover{background:rgba(111,227,255,.06)}
+.step .k{font:800 44px/1 var(--f-display);color:transparent;-webkit-text-stroke:1px rgba(111,227,255,.6);margin-bottom:18px;transition:all .3s}
+.step:hover .k{color:var(--sig);-webkit-text-stroke:1px var(--sig)}
+.step h3{font:600 16px/1.3 var(--f-display);margin-bottom:8px} .step p{color:var(--muted);font-size:15px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.duo .card h3{font-size:16px}
+
+/* contact */
+.final{text-align:center;border:1px solid var(--line);border-radius:28px;padding:clamp(40px,7vw,90px) 24px;background:
+  radial-gradient(600px 300px at 50% 0%,rgba(255,138,31,.2),transparent 70%),rgba(8,11,22,.66);position:relative;overflow:hidden}
+.final h2{font:800 clamp(28px,5vw,62px)/1.05 var(--f-display);letter-spacing:-.02em;max-width:16ch;margin:0 auto 18px;text-wrap:balance}
+.final p{color:var(--muted);max-width:52ch;margin:0 auto 30px;font-size:17.5px}
+footer{padding-block:34px 44px;color:var(--muted);font:400 12.5px/1.6 var(--f-mono)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+
+/* v3: потоки, рівні послуг, розбір файлів, Пульс */
+#fx{position:fixed;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;transform:translate(-50%,-50%);font:400 11.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:7px}
+#fx span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c,var(--ice));box-shadow:0 0 10px var(--c,var(--ice))}
+#fx span.core{font:800 15px/1 var(--f-display);color:#fff;letter-spacing:.04em;padding:11px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.55);background:rgba(8,12,24,.72);box-shadow:0 0 40px rgba(255,255,255,.35),0 0 90px rgba(111,227,255,.35)}
+#fx span.core::before{display:none}
+#fx span.cash{color:var(--sig2);--c:var(--sig)}
+.node{cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.node:hover,.node.sel{border-color:var(--ice);box-shadow:0 0 26px -8px rgba(111,227,255,.8)}
+.stage path.w.hot{stroke:var(--ice);stroke-dasharray:none;filter:drop-shadow(0 0 5px var(--ice))}
+.info{position:relative;margin-top:22px;padding:14px 16px;border:1px dashed var(--line);border-radius:12px;min-height:74px;display:grid;gap:4px;background:rgba(111,227,255,.04)}
+.info b{font:600 14px/1.3 var(--f-display)} .info span{color:var(--muted);font-size:14.5px;line-height:1.5}
+.stagebar .cta{margin:0;gap:10px}
+.console header button{width:13px;height:13px;border-radius:50%;border:0;padding:0;cursor:pointer;background:var(--line);transition:transform .2s,box-shadow .2s}
+.console header button:hover{transform:scale(1.35)}
+.console header button.b1{background:var(--sig)} .console header button.b1:hover{box-shadow:0 0 12px var(--sig)}
+.console header button.b2{background:var(--ice)} .console header button.b2:hover{box-shadow:0 0 12px var(--ice)}
+.console header button.b3{background:var(--muted)}
+.console header em{margin-left:auto;font-style:normal;color:var(--ice)}
+.svc .lvl{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.svc .lvl i{font-style:normal;display:flex;gap:4px} .svc .lvl i b{width:18px;height:5px;border-radius:3px;background:var(--line)} .svc .lvl i b.f{background:var(--sig);box-shadow:0 0 8px var(--sig)}
+.svc .desc{font-size:15px;color:var(--fg)}
+.svc .card.top{border-color:rgba(255,138,31,.55);background:linear-gradient(180deg,rgba(255,138,31,.09),transparent 40%),var(--panel2)}
+.svc li b{color:var(--fg);font-weight:600}
+.pulse{display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center;margin-top:18px;border-color:rgba(255,138,31,.45)}
+.pulse h3{font-size:clamp(20px,2.4vw,28px);margin:14px 0 12px}
+.pains{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.pains>div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14.5px;color:var(--muted);transition:border-color .3s,transform .3s}
+.pains>div:hover{border-color:var(--sig);transform:translateY(-2px)} .pains b{display:block;color:var(--fg);font-weight:600;margin-bottom:2px}
+.phone{width:min(100%,290px);margin:0 auto;border:1px solid rgba(150,180,255,.35);border-radius:34px;padding:12px;background:#05070e;box-shadow:0 30px 80px -30px rgba(111,227,255,.45),inset 0 0 0 1px rgba(255,255,255,.04)}
+.phone .scr{border-radius:24px;background:linear-gradient(180deg,#0b1122,#070a14);padding:14px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-height:400px;align-content:start;position:relative;overflow:hidden}
+.phone .bar{display:flex;justify-content:space-between;align-items:center;font:600 13px/1 var(--f-display)} .phone .bar small{font:400 11px var(--f-mono);color:var(--muted)}
+.phone .bar span{display:flex;align-items:center;gap:7px} .phone .bar span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sig);box-shadow:0 0 10px var(--sig)}
+.tile{border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:6px;background:rgba(120,150,255,.05);transition:border-color .3s}
+.tile small{font:400 10.5px/1.2 var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.tile b{font:600 15px/1.25 var(--f-display)} .tile.ok{border-color:rgba(93,255,176,.5)} .tile.ok b{color:var(--ok)} .tile.warn{border-color:rgba(255,93,122,.6)} .tile.warn b{color:var(--bad)}
+.tile .pb{height:4px;border-radius:2px;background:var(--line);overflow:hidden} .tile .pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ice),var(--sig));transition:width .25s}
+.tile ul{margin:0;padding:0;list-style:none;display:grid;gap:5px;font:400 11.5px/1.4 var(--f-mono);color:var(--muted)} .tile li::before{content:"! ";color:var(--bad)}
+.tiles2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px} .tile{min-width:0} .tile b{overflow-wrap:anywhere} .tiles2 .tile b{font-size:13px}
+.toast{position:absolute;left:10px;right:10px;top:10px;padding:11px 12px;border-radius:14px;background:rgba(240,244,255,.96);color:#10131c;font:500 12.5px/1.35 var(--f-body);transform:translateY(-150%);transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:2;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.toast.on{transform:none} .toast b{display:block;font-weight:600}
+.recon{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center}
+.drop{border:1.5px dashed rgba(111,227,255,.5);border-radius:14px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .25s;display:grid;gap:6px;background:rgba(111,227,255,.04)}
+.drop:hover,.drop.over{border-color:var(--sig);background:rgba(255,138,31,.08);transform:scale(1.01)}
+.drop b{font:600 15px/1.3 var(--f-display)} .drop span{font-size:13.5px;color:var(--muted)}
+#fa{display:grid;gap:12px;min-width:0}
+.fa-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:400 12px/1.4 var(--f-mono);color:var(--muted)} .fa-h b{color:var(--fg);font-weight:400;overflow-wrap:anywhere}
+.fa-k{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fa-k div{border:1px solid var(--line);border-radius:10px;padding:9px 10px;min-width:0} .fa-k small{display:block;font:400 10.5px/1.3 var(--f-mono);color:var(--muted)} .fa-k b{font:600 16px/1.3 var(--f-display);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.fa-l{margin:0;padding:0;list-style:none;display:grid;gap:7px;max-height:210px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.fa-l li{font-size:14px;line-height:1.45;padding:8px 10px 8px 30px;border-radius:9px;background:rgba(120,150,255,.05);position:relative;color:var(--fg);animation:line .35s both;overflow-wrap:anywhere}
+.fa-l li::before{content:"";position:absolute;left:11px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--ice)}
+.fa-l li.e::before{background:var(--bad);box-shadow:0 0 8px var(--bad)} .fa-l li.g::before{background:var(--ok)}
+.chatc{font:400 11.5px var(--f-mono);color:var(--muted);white-space:nowrap}
+.case.hl{grid-column:span 3;border-color:rgba(255,138,31,.5);background:linear-gradient(100deg,rgba(255,138,31,.1),transparent 55%),var(--panel2)}
+.case.hl h3{font-size:clamp(19px,2.2vw,26px)}
+@media (max-width:960px){.pulse,.recon{grid-template-columns:1fr}.case.hl{grid-column:auto}#fx span:not(.core){display:none}}
+@media (max-width:620px){.pains{grid-template-columns:1fr}.fa-k{grid-template-columns:1fr 1fr}}
+@media (max-width:960px){
+  nav.links{display:none}
+  .svc,.cases{grid-template-columns:1fr} .case.aira{grid-column:auto;grid-template-columns:1fr}
+  .pipe,.demos,.sync,.duo{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr} .step:nth-child(2){border-right:0} .step:nth-child(-n+2){border-bottom:1px solid var(--line)}
+}
+@media (max-width:620px){
+  .stage{padding:20px 14px}
+  .nodes{grid-template-columns:repeat(4,1fr);grid-template-rows:none;gap:34px 8px}
+  #n-site{grid-column:1/3;grid-row:1} #n-pay{grid-column:3/5;grid-row:1} #n-crm{grid-column:1/5;grid-row:2;justify-self:center;min-width:60%}
+  #n-prro{grid-column:1;grid-row:3} #n-fin{grid-column:2;grid-row:3} #n-np{grid-column:3;grid-row:3} #n-tg{grid-column:4;grid-row:3}
+  .node.t{align-self:stretch;justify-content:center;flex-direction:column;text-align:center;padding:10px 4px;gap:8px} .node.t small{display:none} .node.t b{font-size:11.5px}
+  .node{padding:10px} .node .ic{width:34px;height:34px} .node b{font-size:13px}
+  .steps{grid-template-columns:1fr} .step{border-right:0;border-bottom:1px solid var(--line)} .step:last-child{border-bottom:0}
+  .hero h1 .rot{white-space:normal}
+  .kpis{grid-template-columns:1fr 1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto} .rv{opacity:1;transform:none}
+}
+
+/* v4: сцена від хаосу до системи, рівні по черзі, пульт, аудит, усе натискне */
+:root{--t1:#6fe3ff;--t2:#b894ff;--t3:#ff9d3d}
+#fx button{position:absolute;transform:translate(-50%,-50%);font:400 11.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:7px;background:none;border:1px solid transparent;border-radius:999px;padding:9px 12px;cursor:pointer;pointer-events:none;transition:color .2s,border-color .2s,background .2s,box-shadow .2s}
+#fx button::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c,var(--ice));box-shadow:0 0 10px var(--c,var(--ice))}
+#fx.live{z-index:3}
+#fx.live button{color:var(--fg);border-color:var(--line);background:rgba(8,12,24,.62)}
+#fx.live button:hover,#fx button.sel{border-color:var(--c);box-shadow:0 0 24px -6px var(--c);color:#fff}
+#fx span.core{transition:none}
+#fx span.tl{font-size:10px;letter-spacing:.12em} #fx span.tl.t1{--c:var(--t1);color:var(--t1)} #fx span.tl.t2{--c:var(--t2);color:var(--t2)} #fx span.tl.t3{--c:var(--t3);color:var(--t3)}
+#fx .ftag{position:absolute;transform:translate(-50%,46px);width:min(320px,80vw);padding:14px 16px;border-radius:14px;border:1px solid var(--c,var(--ice));background:rgba(6,9,18,.92);box-shadow:0 0 40px -12px var(--c,var(--ice));opacity:0;transition:opacity .45s;display:grid;gap:5px;pointer-events:none}
+#fx .ftag.on{opacity:1}
+#fx .ftag b{font:600 15px/1.3 var(--f-display);color:#fff}
+#fx .ftag span{position:static;transform:none;white-space:normal;text-transform:none;letter-spacing:0;font:400 14px/1.5 var(--f-body);color:var(--muted);display:block}
+#fx .ftag span::before{display:none}
+@media (max-width:960px){#fx button,#fx .ftag,#fx span.tl{display:none}}
+
+/* натискні картки з поясненням */
+.x{cursor:pointer;position:relative}
+.x .pl{position:absolute;right:12px;top:12px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font:400 15px/1 var(--f-mono);color:var(--ice);transition:transform .3s,background .3s,color .3s,border-color .3s;pointer-events:none;font-style:normal}
+.x:hover .pl{border-color:var(--ice)} .x.open .pl{transform:rotate(45deg);background:var(--sig);border-color:var(--sig);color:#1a0d00}
+.more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.2,.8,.2,1)}
+.x.open>.more{grid-template-rows:1fr}
+.more>div{overflow:hidden;min-height:0}
+.more p{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:rgba(111,227,255,.06);border-left:2px solid var(--ice);font-size:14px;line-height:1.5;color:var(--fg)!important}
+.more p+p{margin-top:8px;background:rgba(255,138,31,.07);border-left-color:var(--sig)}
+.more p b{display:block;font:400 10.5px/1.4 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ice);margin-bottom:2px}
+.more p+p b{color:var(--sig2)}
+.hud>div.x{flex-direction:row;flex-wrap:wrap;padding-right:44px;align-self:flex-start} .hud>div.x .more{flex-basis:100%} .hud>div.x>span{flex:1;min-width:120px}
+.case.x h3,.tside .x h3,.duo .x h3{padding-right:30px}
+.step.x .pl{top:28px;right:20px}
+.pains>div.x{padding-right:42px}
+.hint{font:400 12px/1.5 var(--f-mono);color:var(--muted)!important;margin:-4px 0 14px}
+.xl{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.xl li{border:1px solid var(--line);border-radius:12px;padding:13px 44px 13px 16px;font-size:15.5px;color:var(--fg)!important;transition:border-color .3s,background .3s}
+.xl li:hover,.xl li.open{border-color:var(--tc,var(--ice));background:rgba(120,150,255,.05)}
+.xl li .pl{top:11px}
+
+/* стрічка інтеграцій: кнопки */
+.marq button.it{cursor:pointer;color:var(--fg)}
+.marq button.it.sel{border-color:var(--sig);box-shadow:0 0 24px -8px var(--sig)}
+.marq.hold div{animation-play-state:paused}
+.minfo{margin-top:14px;padding:16px 46px 16px 18px;border:1px solid rgba(255,138,31,.45);border-radius:14px;background:rgba(8,12,24,.86);position:relative;display:grid;gap:6px;animation:line .35s both}
+.minfo[hidden]{display:none}
+.minfo b{font:600 16px/1.3 var(--f-display)} .minfo span{color:var(--muted);font-size:15px} .minfo span i{font-style:normal;color:var(--sig2)}
+.xbtn{position:absolute;right:10px;top:10px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;font:400 18px/1 var(--f-body);color:var(--fg)}
+.xbtn:hover{border-color:var(--sig)}
+
+/* кнопка «далі» в кожному розділі */
+.next{margin-top:42px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;padding:22px 26px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(100deg,rgba(255,138,31,.1),rgba(111,227,255,.05) 60%,transparent),rgba(8,12,24,.7)}
+.next span{font:500 17px/1.4 var(--f-body);max-width:46ch}
+.next .btn{font-size:16px;padding:17px 26px;animation:nudge 2.6s infinite}
+@keyframes nudge{0%,100%{box-shadow:0 0 0 0 rgba(255,138,31,.55)}60%{box-shadow:0 0 0 14px rgba(255,138,31,0)}}
+
+/* рівні */
+a.card{text-decoration:none;color:inherit;display:flex}
+.svc .go{margin-top:auto;font:600 14px/1 var(--f-body);color:var(--tc);padding-top:6px}
+.lv1{--tc:var(--t1)} .lv2{--tc:var(--t2)} .lv3{--tc:var(--t3)}
+.svc a.card:hover{border-color:var(--tc)}
+.svc .lv1 .n,.svc .lv1 .lvl i b.f{color:var(--t1)} .svc .lv1 .lvl i b.f{background:var(--t1);box-shadow:0 0 8px var(--t1)}
+.svc .lv2 .n{color:var(--t2)} .svc .lv2 .lvl i b.f{background:var(--t2);box-shadow:0 0 8px var(--t2)}
+.svc .lv3 .n{color:var(--t3)}
+section.tier.t1{--tc:var(--t1)} section.tier.t2{--tc:var(--t2)} section.tier.t3{--tc:var(--t3)}
+section.tier .head .eyebrow{color:var(--tc)} section.tier .head .eyebrow::before{background:var(--tc)}
+section.tier{position:relative}
+section.tier::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--tc),transparent);opacity:.6}
+.tgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;margin-top:18px;align-items:start}
+.tside{display:grid;gap:18px}
+.tside .card h3{font-size:15.5px;margin-bottom:8px} .tside .card p{font-size:15px}
+.pains{grid-template-columns:repeat(4,1fr);margin-top:18px}
+.pains>div{background:var(--panel2)}
+
+/* пульт */
+.pult{padding:0;border-color:rgba(255,157,61,.5);box-shadow:0 40px 120px -60px rgba(255,138,31,.6)}
+.ptop{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.pname{display:flex;align-items:center;gap:10px} .pname i{width:10px;height:10px;border-radius:50%;background:var(--sig);box-shadow:0 0 12px var(--sig);animation:beat 2.4s infinite}
+.pname b{font:800 17px/1 var(--f-display)} .pname small{font:400 11.5px var(--f-mono);color:var(--muted)}
+.pper{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px}
+.pper button{border:0;background:none;border-radius:999px;padding:7px 13px;font:500 13px var(--f-body);color:var(--muted);cursor:pointer}
+.pper button.on{background:var(--fg);color:#0a0d16}
+.ptabs{display:flex;gap:6px;padding:12px 20px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)} .ptabs::-webkit-scrollbar{display:none}
+.ptabs button{flex:none;border:1px solid var(--line);background:none;border-radius:10px;padding:9px 14px;font:500 13.5px var(--f-body);color:var(--muted);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
+.ptabs button:hover{color:var(--fg);border-color:var(--ice)}
+.ptabs button.on{color:#1a0d00;background:linear-gradient(100deg,var(--sig),var(--sig2));border-color:transparent}
+.ptabs button u{text-decoration:none;font:600 10.5px var(--f-mono);padding:2px 6px;border-radius:999px;background:var(--bad);color:#fff}
+.pbody{display:grid;grid-template-columns:1fr 290px;min-width:0}
+.pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:18px 20px;align-content:start;min-width:0}
+.pt{border:1px solid var(--line);border-radius:14px;padding:13px;display:grid;gap:7px;background:rgba(120,150,255,.05);min-width:0;animation:line .35s both;align-content:start}
+.pt.w2{grid-column:span 2} .pt.w4{grid-column:1/-1}
+.pt small{font:400 10.5px/1.25 var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.pt>b{font:600 clamp(16px,1.7vw,21px)/1.2 var(--f-display);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pt em{font:400 11.5px var(--f-mono);font-style:normal;color:var(--ok)} .pt em.dn{color:var(--bad)} .pt em.nt{color:var(--muted)}
+.pt.ok{border-color:rgba(93,255,176,.45)} .pt.ok>b{color:var(--ok)} .pt.warn{border-color:rgba(255,93,122,.6)} .pt.warn>b{color:var(--bad)}
+.sp{display:flex;align-items:flex-end;gap:3px;height:30px} .sp i{flex:1;background:linear-gradient(180deg,var(--ice),rgba(111,227,255,.15));border-radius:2px;min-height:3px;transition:height .5s}
+.br{display:grid;gap:6px;font:400 12px/1.2 var(--f-mono);color:var(--muted)} .br div{display:grid;grid-template-columns:minmax(70px,auto) 1fr auto;gap:8px;align-items:center}
+.br i{height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:block} .br i u{display:block;height:100%;background:linear-gradient(90deg,var(--ice),var(--sig));border-radius:3px;transition:width .6s}
+.br span{color:var(--fg)}
+.ls{margin:0;padding:0;list-style:none;display:grid;gap:5px;font-size:13px;color:var(--fg)} .ls li{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--fg)!important} .ls li span{color:var(--muted);font:400 11.5px var(--f-mono);white-space:nowrap}
+.ls li span.g{color:var(--ok)} .ls li span.r{color:var(--bad)}
+.pset{border-left:1px solid var(--line);padding:18px;display:grid;gap:12px;align-content:start;background:rgba(4,6,12,.4);min-width:0}
+.pset>b,.pact>b{font:600 13.5px/1.3 var(--f-display)} .pset p{font-size:13.5px;line-height:1.5;color:var(--muted)}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchips button{border:1px solid var(--line);background:none;border-radius:999px;padding:6px 10px;font:400 12px var(--f-body);color:var(--muted);cursor:pointer;transition:all .2s}
+.pchips button.on{border-color:var(--ice);color:var(--fg);background:rgba(111,227,255,.1)}
+.pchips button.mine{border-color:var(--sig);color:var(--sig2)}
+.padd{border:1px dashed rgba(255,138,31,.6);background:none;border-radius:10px;padding:9px;font:500 13px var(--f-body);color:var(--sig2);cursor:pointer}
+.padd:hover{background:rgba(255,138,31,.1)}
+.pact{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+#pacts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#pacts button{border:1px solid var(--line);background:rgba(120,150,255,.06);border-radius:10px;padding:10px 8px;font:500 12.5px/1.25 var(--f-body);color:var(--fg);cursor:pointer;transition:all .2s}
+#pacts button:hover{border-color:var(--sig);transform:translateY(-1px)} #pacts button.run{border-color:var(--sig);color:var(--sig2)}
+.plog{font:400 12px/1.5 var(--f-mono);color:var(--muted);min-height:3em}
+.plog b{color:var(--ok);font-weight:400}
+
+/* уся система */
+.sys{display:grid;grid-template-columns:minmax(0,440px) 1fr;gap:30px;min-height:78vh;align-items:center}
+.sysl{position:relative;z-index:4}
+.syschips{display:flex;flex-wrap:wrap;gap:8px}
+.syschips button{border:1px solid var(--line);background:rgba(8,12,24,.7);border-radius:999px;padding:9px 14px;font:500 14px var(--f-body);color:var(--fg);cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s}
+.syschips button::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+.syschips button:hover,.syschips button.on{border-color:var(--c);box-shadow:0 0 24px -8px var(--c)}
+.sysinfo{margin-top:16px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:rgba(8,12,24,.82);display:grid;gap:5px;min-height:118px;border-left:3px solid var(--c,var(--ice));transition:border-color .3s}
+.sysinfo b{font:600 16px/1.3 var(--f-display)} .sysinfo span{color:var(--muted);font-size:15px;line-height:1.5}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;font:400 11.5px var(--f-mono);color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:7px} .legend span::before{content:"";width:14px;height:14px;border-radius:50%;border:2px solid var(--c)}
+.legend .t1{--c:var(--t1)} .legend .t2{--c:var(--t2)} .legend .t2::before{border-radius:3px;transform:rotate(30deg)} .legend .t3{--c:var(--t3)} .legend .t3::before{border-radius:50%/30%}
+#system .next,#system .head{position:relative;z-index:4}
+
+/* аудит */
+.aud{display:grid;grid-template-columns:1.1fr 1fr;gap:34px;align-items:center;padding:clamp(26px,4vw,46px);border-color:rgba(111,227,255,.45);background:radial-gradient(520px 300px at 0% 0%,rgba(111,227,255,.14),transparent 70%),var(--panel2)}
+.aud h2{font:800 clamp(26px,3.6vw,46px)/1.08 var(--f-display);margin:14px 0 14px} .aud>div>p{color:var(--muted);font-size:17.5px}
+.audl{display:grid;gap:10px}
+.audl>div{border:1px solid var(--line);border-radius:14px;padding:14px 44px 14px 16px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;transition:border-color .3s}
+.audl>div:hover{border-color:var(--ice)}
+.audl>div>b{font:800 22px/1 var(--f-display);color:transparent;-webkit-text-stroke:1px var(--ice)}
+.audl>div>span{flex:1;min-width:180px;color:var(--muted);font-size:14.5px} .audl strong{display:block;color:var(--fg);font-weight:600;font-size:15.5px}
+.audl .more{flex-basis:100%}
+dialog#aud{width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid rgba(111,227,255,.45);border-radius:22px;background:#080c18;color:var(--fg);overflow:auto;box-shadow:0 40px 140px rgba(0,0,0,.8)}
+dialog#aud::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
+#audf{display:grid;gap:0}
+#audf>header{display:flex;justify-content:space-between;gap:16px;padding:22px 24px 14px;position:relative}
+#audf h3{font:600 19px/1.3 var(--f-display);margin-top:10px} #audf h3 span{color:var(--muted);font:400 13px var(--f-mono)}
+#audf .xbtn{position:static;flex:none}
+.audbar{height:3px;background:var(--line);margin:0 24px;border-radius:2px;overflow:hidden} .audbar i{display:block;height:100%;width:33%;background:linear-gradient(90deg,var(--ice),var(--sig));transition:width .4s}
+.astep{display:grid;gap:16px;padding:20px 24px 6px} .astep[hidden]{display:none}
+#audf label,#audf legend{font:500 14.5px/1.4 var(--f-body);color:var(--fg);display:grid;gap:8px;padding:0} #audf em{font-style:normal;color:var(--muted);font-weight:400}
+#audf fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+#audf textarea,#audf input[type=text],#audf input[type=email]{width:100%;background:#05070e;border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--fg);font:400 16px/1.45 var(--f-body);resize:vertical}
+#audf textarea::placeholder,#audf input::placeholder{color:#55607e}
+#audf textarea:focus,#audf input:focus{outline:none;border-color:var(--ice)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts label{display:block!important;cursor:pointer} .opts input{position:absolute;opacity:0;pointer-events:none}
+.opts span{display:block;border:1px solid var(--line);border-radius:999px;padding:8px 13px;font:400 14px var(--f-body);color:var(--muted);transition:all .2s}
+.opts input:checked+span{border-color:var(--sig);background:rgba(255,138,31,.14);color:var(--fg)}
+.opts input:focus-visible+span{outline:2px solid var(--ice);outline-offset:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fine{font:400 12px/1.5 var(--f-mono);color:var(--muted)}
+.aerr{margin:0 24px;color:var(--bad);font-size:14px;min-height:1.4em}
+#audf>footer{display:flex;justify-content:space-between;gap:10px;padding:8px 24px 22px;position:static}
+.adone{display:grid;gap:12px;padding:6px 0 10px} .adone b{font:600 20px/1.3 var(--f-display)} .adone p{color:var(--muted)}
+.adone pre{margin:0;max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:400 12.5px/1.6 var(--f-mono);padding:14px;border-radius:12px;background:#05070e;border:1px solid var(--line);color:var(--fg)}
+
+@media (max-width:1100px){.pgrid{grid-template-columns:repeat(2,minmax(0,1fr))} .pt.w4{grid-column:1/-1} .pains{grid-template-columns:1fr 1fr}}
+@media (max-width:960px){
+  .tgrid,.aud,.sys{grid-template-columns:1fr} .pbody{grid-template-columns:1fr} .pset{border-left:0;border-top:1px solid var(--line)}
+  .sys{min-height:0} .sysr{height:46vh;order:-1}
+  .case.hl{grid-column:auto}
+}
+@media (max-width:620px){.pains{grid-template-columns:1fr} .two{grid-template-columns:1fr} .next{padding:18px} .next .btn{width:100%;justify-content:center} .ptop{padding:14px} .ptabs,.pgrid{padding-inline:14px} .pgrid{gap:8px} .pt{padding:11px}}
+
+.final h2,.final p{text-shadow:0 2px 18px #04060c,0 0 40px #04060c}
+.x .more b{background:none;-webkit-text-fill-color:currentColor}
+.adone .btn{justify-self:start}
+.hud>div.x{max-width:330px}
+
+</style>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div id="fx"></div>
+<div id="glow" aria-hidden="true"></div>
+<div id="bar" aria-hidden="true"></div>
+
+<header class="nav"><div class="wrap">
+  <a class="logo" href="#top"><i></i><span>Aira<b>Nova</b></span></a>
+  <nav class="links" aria-label="Розділи">
+    <a href="#flow">Рівень 1</a><a href="#l2">Рівень 2</a><a href="#l3">Рівень 3</a><a href="#adv">Переваги</a><a href="#system">Уся система</a><a href="#audit">ШІ-аудит</a>
+  </nav>
+  <button class="btn sm mag" type="button" data-audit>Залишити заявку</button>
+</div></header>
+
+<main id="top">
+
+<section class="hero"><div class="wrap">
+  <span class="eyebrow">Студія автоматизації та ШІ · Україна</span>
+  <h1>Будуємо <span class="rot" id="rot" aria-label="сайти, автоматизації, ШІ-агентів">автоматизації</span> замість хаосу</h1>
+  <p class="lead">Так виглядає бізнес на старті: замовлення, склад, реклама й гроші біжать кожен у свій бік. Ми зводимо їх в одну систему, рівень за рівнем. Гортайте вниз і дивіться, як хаос за спиною стає потоком. <b>Працює ШІ, керує й відповідає людина.</b></p>
+  <div class="cta">
+    <a class="btn mag" href="#flow">Запустити живу схему <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+    <a class="btn ghost mag" href="#l2">Запитати консультанта</a>
+  </div>
+  <div class="hud">
+    <div data-more="Сайт, оплата, CRM, каса, облік, доставка й сповіщення команді працюють як одне ціле. Саме цю зв'язку ви запустите в живій схемі нижче.|Замовлення не чекає, поки хтось перенесе його з вікна у вікно. Менше помилок, швидша відправка, більше часу на продажі."><b>7</b><span>систем в одній зв'язці: від сайту до чека й накладної</span></div>
+    <div data-more="Від оформлення на сайті до накладної людина не торкається замовлення: дані передаються між системами самі.|Менеджер не переносить цифри, а спілкується з покупцями. Та сама команда встигає обробити більше замовлень."><b>0</b><span>ручних дій на шляху замовлення</span></div>
+    <div data-more="Скрипти за розкладом звіряють залишки, оплати й звіти, а ШІ-менеджер відповідає клієнтам, поки команда відпочиває.|Нічні звернення не лишаються без відповіді, а зранку команда бачить готовий результат замість купи рутини."><b>24/7</b><span>скрипти працюють уночі та у вихідні</span></div>
+  </div>
+</div></section>
+
+<div class="marq"><div id="marq"></div></div>
+<div class="wrap"><div class="minfo" id="minfo" hidden aria-live="polite"></div></div>
+
+<section class="s" id="services"><div class="wrap">
+  <div class="head rv">
+    <span class="eyebrow">Шлях від хаосу до системи</span>
+    <h2 data-scr>Три рівні. Кожен додає порядку й грошей</h2>
+    <p>Починати можна з найпростішого. Кожен наступний рівень включає попередній. Що далі ви гортаєте, то зібранішою стає картина за спиною: так само змінюється бізнес.</p>
+  </div>
+  <div class="svc">
+    <a class="card tilt rv lv1" href="#flow">
+      <div class="glyph"><canvas data-g="flow"></canvas></div>
+      <div class="lvl"><span class="n">Рівень 1 · старт</span><i aria-hidden="true"><b class="f"></b><b></b><b></b></i></div>
+      <h3>Автоматизація без ШІ</h3>
+      <p class="desc">Найпростіше й найдоступніше. Системи, якими ви вже користуєтесь, починають самі передавати дані одна одній.</p>
+      <span class="go">Дивитись рівень 1 →</span>
+    </a>
+    <a class="card tilt rv lv2" href="#l2">
+      <div class="glyph"><canvas data-g="net"></canvas></div>
+      <div class="lvl"><span class="n">Рівень 2 · ШІ</span><i aria-hidden="true"><b class="f"></b><b class="f"></b><b></b></i></div>
+      <h3>ШІ-агенти й помічники</h3>
+      <p class="desc">Складніше й дорожче. ШІ бере задачі, де раніше потрібна була людина: читати, шукати, звіряти, відповідати.</p>
+      <span class="go">Дивитись рівень 2 →</span>
+    </a>
+    <a class="card tilt rv lv3" href="#l3">
+      <div class="glyph"><canvas data-g="grid"></canvas></div>
+      <div class="lvl"><span class="n">Рівень 3 · комплекс</span><i aria-hidden="true"><b class="f"></b><b class="f"></b><b class="f"></b></i></div>
+      <h3>Пульт Вашого бізнесу</h3>
+      <p class="desc">Найбільший рівень. Увесь бізнес зведено в одну систему, якою ви керуєте з телефона. Включає перші два.</p>
+      <span class="go">Дивитись рівень 3 →</span>
+    </a>
+  </div>
+  <div class="next rv"><span>Не знаєте, який рівень ваш? Почніть із найпростішого й подивіться його наживо.</span><a class="btn mag" href="#flow">Почати з рівня 1 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s tier t1" id="flow"><div class="wrap">
+  <div class="head rv">
+    <span class="eyebrow">Рівень 1 · старт · без ШІ</span>
+    <h2 data-scr>Одне замовлення. Сім систем. Нуль ручних дій.</h2>
+    <p>Найпростіше й найдоступніше рішення: чиста автоматизація. Так проходить кожне замовлення в нашому магазині, від сайту до чека, обліку, накладної та сповіщення команді. Запустіть замовлення або натисніть на будь-яку систему.</p>
+  </div>
+  <div class="pipe rv">
+    <div class="stage" id="stage">
+      <svg id="wires" aria-hidden="true"></svg>
+      <div class="nodes">
+        <button type="button" class="node" id="n-site"><span class="ic">WC</span><span><b>Сайт</b><small>WooCommerce</small></span></button>
+        <button type="button" class="node" id="n-pay"><span class="ic">WFP</span><span><b>Оплата</b><small>WayForPay</small></span></button>
+        <button type="button" class="node" id="n-crm"><span class="ic">CRM</span><span><b>KeyCRM</b><small>замовлення, клієнт, UTM</small></span></button>
+        <button type="button" class="node t" id="n-prro"><span class="ic">ПРРО</span><span><b>Checkbox</b><small>фіскальний чек</small></span></button>
+        <button type="button" class="node t" id="n-fin"><span class="ic">FM</span><span><b>Finmap</b><small>облік грошей</small></span></button>
+        <button type="button" class="node t" id="n-np"><span class="ic">НП</span><span><b>Нова пошта</b><small>накладна</small></span></button>
+        <button type="button" class="node t" id="n-tg"><span class="ic">TG</span><span><b>Telegram</b><small>сповіщення</small></span></button>
+      </div>
+      <div class="info" id="info" aria-live="polite"><b>Натисніть на систему</b><span>Побачите, що саме вона робить у зв'язці і що перестає робити людина.</span></div>
+      <div class="stagebar">
+        <div class="cta"><button class="btn mag" id="run" type="button">Запустити замовлення</button><button class="btn ghost" id="stepb" type="button">Крок за кроком</button></div>
+        <span class="note">Номери й суми в прикладі змінено, шлях замовлення справжній.</span>
+      </div>
+    </div>
+    <div class="console" aria-live="polite">
+      <header><button type="button" class="b1" id="c-run" title="Запустити замовлення" aria-label="Запустити замовлення"></button><button type="button" class="b2" id="c-speed" title="Змінити швидкість" aria-label="Змінити швидкість"></button><button type="button" class="b3" id="c-clear" title="Очистити журнал" aria-label="Очистити журнал"></button><span>журнал замовлення</span><em id="c-sp">×1</em></header>
+      <div id="log"><div>$ чекаю на замовлення…</div></div>
+      <div class="receipt" id="receipt"></div>
+    </div>
+  </div>
+  <div class="tgrid">
+    <div class="card rv">
+      <h3>Що входить у рівень 1</h3>
+      <p class="hint">Натисніть на рядок, щоб побачити, як це пов'язано із системою і як допомагає заробляти.</p>
+      <ul class="xl">
+        <li data-more="WooCommerce, KeyCRM, Finmap і Checkbox передають дані одна одній самі. KeyCRM стає центром, звідки команди розходяться далі.|Замовлення не губляться й не дублюються. Менеджер продає, а не переносить цифри між вікнами.">Сайт, CRM, облік і каса в одній зв'язці</li>
+        <li data-more="WayForPay сам підтверджує оплату в CRM. Накладні Нової пошти й Укрпошти створюються із замовлення одним рухом або без нього.|Клієнт швидше отримує посилку й номер відстеження. Менше питань «де моє замовлення» і менше повернень через помилки в адресі.">Оплата й доставка без ручного введення</li>
+        <li data-more="Створюємо КЕП, реєструємо каси й касирів, підключаємо фіскалізацію до магазину та CRM.|Чеки видаються самі, одразу після оплати. Ніхто не пробиває їх увечері руками й не забуває.">Checkbox під ключ: КЕП, каси, касири</li>
+        <li data-more="Залишки з CRM самі оновлюються на сайті, а окремий скрипт шукає розбіжності в артикулах.|Ви не продаєте те, чого немає, і не ховаєте від покупців те, що лежить на складі.">Залишки, які збігаються із сайтом</li>
+        <li data-more="Бот повідомляє команду про нове замовлення, оплату чи збій за кілька секунд.|Пакування починається одразу, а проблему видно в день, коли вона з'явилась, а не наприкінці місяця.">Telegram-боти й сповіщення для команди</li>
+        <li data-more="Робимо сайт або магазин одразу зв'язаним із CRM, оплатою й касою. Цей сайт теж зібрано нами, без шаблонів.|Магазин готовий приймати замовлення й гроші з першого дня, без «потім під'єднаємо».">Сайти й інтернет-магазини на WooCommerce</li>
+      </ul>
+    </div>
+    <div class="tside">
+      <div class="card rv" data-more="Усе з цього рівня щодня працює в нашому власному магазині одягу, тож ми знаємо, де зв'язка ламається і як її лагодити.|Ви отримуєте схему, вже перевірену на справжніх замовленнях, а не експеримент за ваш рахунок."><h3>Кому підходить</h3><p>Магазину чи сервісу, де замовлення вже є, але дані між сайтом, CRM, касою й обліком переносять люди.</p></div>
+      <div class="card rv" data-more="Після запуску лишається інструкція простою мовою: що куди ходить і що робити, якщо щось зупинилось.|Ви не залежите від нас у дрібницях, а команда не боїться системи."><h3>Що змінюється</h3><p>Замовлення саме проходить шлях від сайту до накладної. Команда займається покупцями, а не таблицями.</p></div>
+      <div class="card rv" data-more="Рівень 1 дає чисті дані в одному місці. Без цього ШІ й аналітика працюють на здогадках.|Кожен наступний крок коштує дешевше й дає більше, бо стоїть на порядку, а не на хаосі."><h3>Що це дає далі</h3><p>Основу для рівнів 2 і 3: ШІ та пульт потребують даних, яким можна вірити.</p></div>
+    </div>
+  </div>
+  <div class="next rv"><span>Порядок у даних є. Тепер їх можна довірити ШІ.</span><a class="btn mag" href="#l2">Далі: рівень 2, ШІ бере рутину <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s tier t2" id="l2"><div class="wrap">
+  <div class="head rv">
+    <span class="eyebrow">Рівень 2 · ШІ-агенти й помічники</span>
+    <h2 data-scr>ШІ бере те, де раніше потрібна була людина</h2>
+    <p>Складніший і дорожчий рівень. ШІ читає, шукає, звіряє й готує відповіді, а людина лише підтверджує важливе. Обидва демо нижче справжні: поставте питання й киньте власний файл.</p>
+  </div>
+  <div class="demos">
+    <div class="card demo rv">
+      <div class="top"><h3>Демо-консультант</h3><span class="chatc">залишилось питань: <b id="left">10</b></span></div>
+      <div class="body">
+        <div id="chat" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <form id="chatf" autocomplete="off"><input id="chatin" type="text" maxlength="300" placeholder="Напишіть своє питання" aria-label="Питання до консультанта"><button class="btn sm" type="submit">Надіслати</button></form>
+        <span class="note">Консультант відповідає лише про послуги студії. У демо до 10 питань.</span>
+      </div>
+    </div>
+    <div class="card demo rv">
+      <div class="top"><h3>Розбір вашого файла</h3><span class="pill">працює у вашому браузері</span></div>
+      <div class="body">
+        <label class="drop" id="drop" for="file"><b>Перетягніть файл сюди або натисніть</b><span>Excel, CSV, Word, PDF. Покажемо цифри, корисні підсумки й помилки в даних.</span></label>
+        <input id="file" type="file" hidden accept=".xlsx,.xls,.ods,.csv,.tsv,.txt,.docx,.pdf">
+        <div id="fa"></div>
+        <span class="note">Файл нікуди не надсилається. Це швидкий автоматичний розбір; у проєкті до нього додається ШІ, який пояснює цифри словами.</span>
+      </div>
+    </div>
+  </div>
+  <div class="tgrid">
+    <div class="card rv">
+      <h3>Що входить у рівень 2</h3>
+      <p class="hint">Натисніть на рядок, щоб побачити зв'язок із системою й користь.</p>
+      <ul class="xl">
+        <li data-more="У нашому магазині ШІ-менеджер уночі відповідає клієнтам за скриптами відділу продажів і звіряє оплати, а складне передає людям зранку.|Звернення о другій ночі не лишається без відповіді до ранку. Клієнт, якому відповіли одразу, частіше доходить до оплати.">ШІ-менеджер, що відповідає клієнтам, коли команда відпочиває</li>
+        <li data-more="Агент має доступ лише до тих даних і дій, які ви дозволили: готує чернетки відповідей, шукає, звіряє, складає звіти.|Задачі, на які йшли години людини, займають хвилини. Людина перевіряє результат, а не робить усе з нуля.">Агенти під вашу задачу</li>
+        <li data-more="ШІ читає виписки, вивантаження з CRM, договори, скани й фото накладних і повертає цифри, помилки та висновки.|Помилку в даних видно до того, як вона стала втраченими грошима. Спробуйте на своєму файлі вище.">Розбір файлів і документів</li>
+        <li data-more="Модель працює на вашому комп'ютері, без хмарних сервісів. Документи не залишають офіс.|Можна доручити ШІ навіть чутливі дані: договори, зарплати, клієнтську базу.">Локальний ШІ на вашому комп'ютері</li>
+        <li data-more="Регламенти, скрипти, прайси й інструкції стають базою, з якої ШІ відповідає команді й клієнтам.|Новий працівник швидше входить у роботу, а відповіді клієнтам стають однаково точними в усіх менеджерів.">База знань із ваших документів</li>
+        <li data-more="Усе, що йде клієнту чи змінює дані, або працює в межах жорстких правил, або чекає на підтвердження людини.|ШІ пришвидшує роботу, але не може нашкодити репутації чи грошам самовільною дією.">Правило «нічого назовні без підтвердження»</li>
+      </ul>
+    </div>
+    <div class="tside">
+      <div class="card rv" data-more="ШІ підключається до тих самих CRM, обліку й таблиць, які зв'язав рівень 1.|Що чистіші дані, то точніші відповіді й висновки ШІ."><h3>Кому підходить</h3><p>Бізнесу, де вже є порядок у даних і є задачі, що з'їдають час людей: відповіді, звірки, документи, звіти.</p></div>
+      <div class="card rv" data-more="Ми не приховуємо, що з вами працює ШІ, і самі користуємося цими агентами щодня.|Ви бачите справжні межі технології до оплати, а не після."><h3>Чесно про ШІ</h3><p>ШІ помиляється, тому ми ставимо йому межі й перевірки. Відповідальність за результат лишається за людиною.</p></div>
+      <div class="card rv" data-more="Агенти й дані з рівнів 1 і 2 стають показниками та кнопками на пульті рівня 3.|Ви не просто маєте помічників, а бачите й керуєте ними з одного екрана."><h3>Що це дає далі</h3><p>Команда встигає більше тим самим складом, а власник отримує час на розвиток замість контролю.</p></div>
+    </div>
+  </div>
+  <div class="next rv"><span>Системи зв'язані, ШІ працює. Лишилось побачити все на одному екрані.</span><a class="btn mag" href="#l3">Далі: рівень 3, Пульт Вашого бізнесу <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s tier t3" id="l3"><div class="wrap">
+  <div class="head rv">
+    <span class="eyebrow">Рівень 3 · комплексні рішення</span>
+    <h2 data-scr>Пульт Вашого бізнесу: усе на одному екрані, керування з кишені</h2>
+    <p>Власник зазвичай збирає картину по шматках: продажі в CRM, гроші в обліку, реклама в кабінетах, залишки в таблицях, а про проблему дізнається останнім. Пульт зводить усе в одне місце й сам показує, де потрібна увага. Ми зробили такий для власного магазину й керуємо бізнесом із телефона щодня.</p>
+  </div>
+  <div class="card pult rv" id="pult">
+    <div class="ptop">
+      <div class="pname"><i></i><b>Пульт</b><small>приклад екрана · цифри умовні</small></div>
+      <div class="pper" id="pper" role="group" aria-label="Період"><button type="button" class="on" data-p="d">Сьогодні</button><button type="button" data-p="w">Тиждень</button><button type="button" data-p="m">Місяць</button></div>
+    </div>
+    <div class="ptabs" id="ptabs" role="tablist"></div>
+    <div class="pbody">
+      <div class="pgrid" id="pgrid" aria-live="polite"></div>
+      <aside class="pset">
+        <b>Показники цього екрана</b>
+        <p>Вимкніть зайве або додайте своє. У справжньому пульті буде саме те, що потрібно Вашому бізнесу.</p>
+        <div class="pchips" id="pchips"></div>
+        <button type="button" class="padd" id="padd">+ свій показник</button>
+        <div class="pact"><b>Керування, як із пульта</b><div id="pacts"></div></div>
+        <div class="plog" id="plog" aria-live="polite">Натисніть кнопку, щоб запустити задачу.</div>
+      </aside>
+    </div>
+  </div>
+  <div class="pains">
+    <div class="rv" data-more="Пульт сам забирає дані з CRM, обліку грошей, рекламних кабінетів, сайту й таблиць та оновлюється за розкладом.|Рішення ухвалюються за хвилину і на повній картині, а не на відчутті «наче все добре»."><b>Усе в одному місці</b>Не треба відкривати п'ять кабінетів, щоб зрозуміти, як справи.</div>
+    <div class="rv" data-more="Правила перевірки задаєте ви: замовлення без накладної, реклама без продажів, товар, що закінчується, розбіжність у звіті.|Проблема коштує дешевше, коли її видно в той самий день, а не у звіті за місяць."><b>Проблему видно одразу</b>Система сама підсвічує відхилення в день, коли вони з'явились.</div>
+    <div class="rv" data-more="Кнопки на пульті запускають звірки, оновлення залишків, звіти й агентів. Усе працює з телефона, без ноутбука.|Власник не прив'язаний до офісу: бізнес під контролем із будь-якого місця."><b>Керування з телефона</b>Запускаєте задачі й перевірки кнопкою, як із пульта.</div>
+    <div class="rv" data-more="Звіт менеджерів звіряється з CRM автоматично, а модель фінансового стимулювання рахує бонуси з уже перевірених цифр.|Керівник не витрачає години на ручну перевірку, а команда працює за зрозумілими й чесними правилами."><b>Контроль без нагляду</b>Звіти звіряються з CRM, а робота менеджерів перевіряється автоматично.</div>
+  </div>
+  <div class="card demo wide rv" style="margin-top:18px">
+    <div class="top"><h3>Звіт сам звіряється з CRM, результат видно на пульті</h3><span class="pill">приклад даних</span></div>
+    <div class="body"><div class="recon">
+      <div class="phone"><div class="scr">
+        <div class="toast" id="toast"><b>Пульт</b><span id="toastt"></span></div>
+        <div class="bar"><span>Пульт</span><small id="ptime">щойно</small></div>
+        <div class="tile" id="ptile"><small>Звірка звіту з CRM</small><b id="pstat">Очікує запуску</b><div class="pb"><i id="pbar"></i></div><ul id="plist"></ul></div>
+        <div class="tiles2"><div class="tile"><small>У звіті</small><b id="pa">0</b></div><div class="tile"><small>У CRM</small><b id="pb2">0</b></div></div>
+        <div class="tile"><small>Наступна звірка</small><b>автоматично, через <span id="pcd">30</span> с</b></div>
+      </div></div>
+      <div class="syncside" style="min-width:0">
+        <p>Менеджери здають звіт, а система сама порівнює кожне замовлення зі звіту з тим, що є в CRM. Власник не сидить над таблицями: на пульті одразу видно, що збіглося, а де розбіжність і в якому саме замовленні.</p>
+        <div class="tblw"><table id="tbl"><thead><tr><th>Замовлення</th><th class="num">У звіті, грн</th><th class="num">У CRM, грн</th><th>Стан</th></tr></thead><tbody></tbody></table></div>
+        <div class="cta" style="margin:0"><button class="btn sm" id="scan" type="button">Звірити зараз</button></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="tgrid" style="margin-top:18px">
+    <div class="card rv">
+      <h3>Що ще входить у рівень 3</h3>
+      <p class="hint">Рівень 3 включає все з рівнів 1 і 2. Натисніть на рядок, щоб побачити деталі.</p>
+      <ul class="xl">
+        <li data-more="Збираємо дані з ваших систем у Google Sheets та Apps Script і показуємо їх так, як зручно саме вам.|Звіт, який раніше збирали півдня, оновлюється сам. Ви дивитесь на цифри, а не чекаєте на них.">Дашборди й звіти, що оновлюються самі</li>
+        <li data-more="Скрипти на Python за розкладом звіряють залишки, оплати, артикули й готують зведення.|Рутина робиться, поки всі сплять, і не забирає робочий день команди.">Нічні скрипти: рутина робиться вночі</li>
+        <li data-more="Кожне замовлення зі звіту менеджера порівнюється з CRM. Розбіжності видно на пульті з номером замовлення.|Помилки й приписки знаходяться в день появи, а бонуси рахуються з правдивих цифр.">Автоматична звірка звітів із CRM</li>
+        <li data-more="Модель фінансового стимулювання (МФС) прив'язує бонус менеджера до чітких показників. Наш звіт сам перевіряє ці показники за даними CRM.|Менеджери зацікавлені в результаті й знають правила, а керівник не перевіряє кожну цифру руками.">МФС і звіт, який сам перевіряє менеджерів</li>
+        <li data-more="Окремий агент із власною пам'яттю й інструментами, налаштований під вашу команду. Він під'єднується до пульта як ще один працівник.|Агент бере щоденні задачі, на які не вистачає рук, і звітує на пульт.">Додатково: власний ШІ-агент для команди</li>
+        <li data-more="Після запуску стежимо, щоб зв'язки не ламались після оновлень сервісів, і додаємо нові показники та кнопки.|Система росте разом із бізнесом, а не застаріває через пів року.">Підтримка й розвиток після запуску</li>
+      </ul>
+    </div>
+    <div class="tside">
+      <div class="card rv" data-more="Пульт стоїть на зв'язках рівня 1 і агентах рівня 2, тому показує живі дані, а не вручну заповнені таблиці.|Ви бачите правду про бізнес щодня, а не раз на місяць."><h3>Кому підходить</h3><p>Власнику, який хоче бачити весь бізнес і керувати ним, не занурюючись у кожну таблицю й кожен чат.</p></div>
+      <div class="card rv" data-more="Показники, правила перевірок і кнопки підбираються під ваші процеси на аудиті, а не беруться з шаблону.|Ви платите за те, чим справді користуватиметесь щодня."><h3>Тільки ваші показники</h3><p>Немає двох однакових пультів. Підключаємо саме ті цифри й кнопки, які потрібні Вашому бізнесу.</p></div>
+    </div>
+  </div>
+  <div class="next rv"><span>Ви бачили всі три рівні. Чому нам можна це довірити?</span><a class="btn mag" href="#adv">Далі: наші переваги <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s" id="adv"><div class="wrap">
+  <div class="head rv">
+    <span class="eyebrow">Переваги</span>
+    <h2 data-scr>Чому це працює саме в нас</h2>
+    <p>Кожну картку можна натиснути: всередині коротко, як це влаштовано і що це дає бізнесу.</p>
+  </div>
+  <div class="cases">
+    <article class="card case hl tilt rv" data-more="Звіт бере дані менеджерів і CRM, порівнює їх і показує розбіжності на пульті. На цих самих цифрах рахується модель фінансового стимулювання.|Мотивація стає чесною й прозорою: менеджер знає, за що отримує бонус, а власник платить лише за справжній результат."><span class="eyebrow">Головна перевага</span><h3 style="margin-top:12px">Звіт, який сам перевіряє менеджерів</h3><p>Ми впровадили модель фінансового стимулювання (МФС) і зробили звіт, що автоматично перевіряє роботу менеджерів і звіряє її з CRM. Керівник не сидить над таблицями й не шукає помилки руками: система сама показує, де все гаразд, а де потрібна увага.</p><p class="res">Контроль команди працює щодня й без ручної перевірки.</p><div><span class="tag">МФС</span><span class="tag">KeyCRM</span><span class="tag">пульт</span><span class="tag">автоперевірка</span></div></article>
+    <article class="card case tilt rv" data-more="Засновник студії є співзасновником бренду одягу з власним інтернет-магазином. Кожне рішення спершу запускається там.|Ви купуєте те, що вже пережило справжні замовлення, розпродажі й збої, а не теорію."><h3>Спершу робимо для себе</h3><p>Усе, що ми пропонуємо, щодня працює у нашому власному магазині.</p></article>
+    <article class="card case tilt rv" data-more="Людина ставить задачу й контролює хід, ШІ пише код і збирає зв'язки, людина перевіряє й відповідає.|Те, що в агенції займає тижні, тут робиться швидше, і ви не платите за години рутинної роботи."><h3>Швидкість ШІ, відповідальність людини</h3><p>Основну роботу виконує ШІ, а за результат відповідає людина. Ми цього не приховуємо.</p></article>
+    <article class="card case tilt rv" data-more="Перед здачею проганяємо рішення на справжніх замовленнях, файлах і звітах, а не на вигаданих прикладах.|Система не розсипається в перший робочий день, і вам не доводиться доплачувати за виправлення."><h3>Перевірка на реальних даних</h3><p>Тестуємо на справжніх даних, а не «в теорії». Слабке не здаємо.</p></article>
+    <article class="card case tilt rv" data-more="Локальний ШІ працює на вашому комп'ютері, а назовні нічого не йде без підтвердження людини.|Можна автоматизувати навіть роботу з договорами, зарплатами й клієнтською базою, не ризикуючи витоком."><h3>Ваші дані лишаються у вас</h3><p>Доступи мінімальні, чутливе не покидає ваш офіс.</p></article>
+    <article class="card case tilt rv" data-more="Пульт відкривається в телефоні: показники, сповіщення й кнопки запуску задач під рукою.|Власник керує бізнесом із будь-якого місця й не дізнається про проблему останнім."><h3>Бізнес у телефоні</h3><p>Не ще одна таблиця, а пульт: дивитесь і керуєте одним пальцем.</p></article>
+    <article class="card case tilt rv" data-more="До кожного рішення додаємо інструкцію без жаргону: що це, як користуватись, що робити, якщо зупинилось.|Команда користується системою з першого дня, а не обходить її стороною."><h3>Мовою власника, а не програміста</h3><p>Пояснюємо просто й покроково, з назвами кнопок.</p></article>
+    <article class="card case tilt rv" data-more="Після запуску можемо взяти систему на підтримку: стежимо за зв'язками, додаємо показники й нові задачі.|Вкладення не знецінюються: система розвивається разом із бізнесом."><h3>Не зникаємо після запуску</h3><p>Підтримуємо й розвиваємо те, що побудували.</p></article>
+    <article class="card case tilt rv" data-more="Перед роботою робимо аудит і прямо кажемо, де автоматизація окупиться, а де ні.|Ви не платите за те, що вам не потрібно, і знаєте план наперед."><h3>Чесне «ні»</h3><p>Беремо лише те, що точно доведемо до кінця.</p></article>
+  </div>
+  <div class="next rv"><span>Слова легко написати. Ось що вже працює.</span><a class="btn mag" href="#cases">Далі: що вже працює в нашому магазині <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s" id="cases"><div class="wrap">
+  <div class="head rv">
+    <span class="eyebrow">Кейси</span>
+    <h2 data-scr>Спершу зробили для себе</h2>
+    <p>Усе нижче щодня працює в нашому інтернет-магазині одягу. Внутрішні цифри магазину не показуємо. Натисніть на картку, щоб побачити, як вона пов'язана з рештою системи.</p>
+  </div>
+  <div class="cases">
+    <article class="card case tilt rv" data-more="Пульт забирає дані з CRM, обліку, реклами й сайту та оновлюється сам. З нього ж запускаються звірки й задачі.|Власник бачить відхилення того ж дня й реагує, поки воно не стало збитком."><h3>Пульт бізнесу в телефоні</h3><p>Продажі, реклама, залишки, гроші й нічні задачі зведені на один екран, який оновлюється сам.</p><p class="res">Стан бізнесу видно будь-коли, без вивантажень.</p><div><span class="tag">Google Sheets</span><span class="tag">Apps Script</span></div></article>
+    <article class="card case tilt rv" data-more="KeyCRM стоїть у центрі: приймає замовлення із сайту й роздає команди касі, обліку та доставці.|Та сама команда обробляє більше замовлень, бо не витрачає час на перенесення даних."><h3>Магазин, CRM, фінанси й каса в одній зв'язці</h3><p>Замовлення із сайту потрапляють у KeyCRM, рух грошей видно у Finmap, чеки видає Checkbox. Оплата через WayForPay, доставка Новою поштою й Укрпоштою.</p><p class="res">Дані між системами ніхто не переносить руками.</p><div><span class="tag">WooCommerce</span><span class="tag">KeyCRM</span><span class="tag">Finmap</span><span class="tag">Checkbox</span></div></article>
+    <article class="card case tilt rv" data-more="Скрипт порівнює товари й залишки в KeyCRM і на сайті та складає список розбіжностей для виправлення.|Немає продажів товару, якого вже нема, і немає «невидимих» залишків, що лежать без руху."><h3>Синхронізація залишків і звірка артикулів</h3><p>Скрипти на Python звіряють товари й залишки між KeyCRM і сайтом та знаходять розбіжності в артикулах.</p><p class="res">Розбіжності знаходяться автоматично.</p><div><span class="tag">Python</span><span class="tag">KeyCRM API</span></div></article>
+    <article class="card case tilt rv" data-more="Нічний ШІ-менеджер відповідає клієнтам за скриптами, звіряє оплати й лишає команді зведення на ранок.|Нічні звернення перетворюються на замовлення, а не на втрачених клієнтів."><h3>Нічна зміна без людей</h3><p>Уночі ШІ-менеджер відповідає клієнтам, а скрипти виконують рутину. Зранку команда бачить готовий результат.</p><p class="res">Магазин не «зачиняється» на ніч.</p><div><span class="tag">ШІ-менеджер</span><span class="tag">Розклад</span></div></article>
+    <article class="card case tilt rv" data-more="UTM-мітки із замовлень зводяться з витратами з Meta, Google Ads і GA4 на одному екрані пульта.|Бюджет іде в рекламу, яка приводить покупців, а не просто перегляди."><h3>Звідки прийшло замовлення</h3><p>UTM-мітки на замовленнях і дані реклами в Instagram та Facebook, Google Ads і GA4 зведені разом.</p><p class="res">Видно, яка реклама приводить покупців.</p><div><span class="tag">Meta API</span><span class="tag">Instagram</span><span class="tag">Google Ads</span><span class="tag">GA4</span></div></article>
+    <article class="card case tilt rv" data-more="Каса під'єднана до CRM: чек формується з оплаченого замовлення й надходить клієнту.|Фіскалізація не забирає часу команди й не залежить від того, чи хтось не забув."><h3>Checkbox під ключ</h3><p>Створення КЕП, реєстрація кас і касирів, підключення фіскалізації до магазину та CRM.</p><p class="res">Чеки видаються самі, за правилами.</p><div><span class="tag">Checkbox</span><span class="tag">КЕП</span><span class="tag">ПРРО</span></div></article>
+  </div>
+  <div class="next rv"><span>Хочете так само? Ось як проходить робота.</span><a class="btn mag" href="#how">Далі: як ми працюємо <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s" id="how"><div class="wrap">
+  <div class="head rv">
+    <span class="eyebrow">Як працюємо</span>
+    <h2 data-scr>ШІ робить швидко. Людина відповідає за результат.</h2>
+    <p>Ми не приховуємо, що основну роботу виконує ШІ. Саме тому виходить швидше, а кожен результат перед здачею перевіряє людина на реальних даних. Натисніть на крок.</p>
+  </div>
+  <div class="steps rv">
+    <div class="step" data-more="Починаємо з ШІ-аудиту: розбираємо ваші процеси й системи та домовляємось, що саме вважатимемо результатом.|Ви знаєте ціну, порядок робіт і критерії приймання до того, як заплатите за розробку."><div class="k">01</div><h3>Уточнюємо задачу</h3><p>Домовляємося, що саме потрібно і за якими критеріями ви приймете роботу.</p></div>
+    <div class="step" data-more="Працюємо у ваших системах із мінімальними доступами. Усе, що змінює живі дані, спершу погоджуємо.|Робота рухається швидко, а ваш магазин у цей час продає як завжди."><div class="k">02</div><h3>Будуємо з ШІ</h3><p>Людина ставить задачі й контролює хід, ШІ пише код і збирає зв'язки.</p></div>
+    <div class="step" data-more="Проганяємо справжні замовлення, файли й звіти та порівнюємо результат із тим, що було до нас.|Ви отримуєте систему, яка вже пройшла перевірку вашими ж даними."><div class="k">03</div><h3>Перевіряємо</h3><p>Тестуємо на реальних даних, а не «в теорії». Слабке не здаємо.</p></div>
+    <div class="step" data-more="Передаємо систему з інструкцією й показуємо команді, як нею користуватись. Далі можемо взяти на підтримку.|Команда користується новим із першого дня, і вкладення починають повертатись одразу."><div class="k">04</div><h3>Здаємо і правимо</h3><p>Правки в межах узгодженої задачі входять у ціну.</p></div>
+  </div>
+  <div class="duo">
+    <div class="card rv" data-more="Разом із рішенням ви отримуєте опис зв'язків, доступи під вашим контролем і перелік того, що робити при збої.|Система належить вам: ви не прив'язані до нас і не платите за кожну дрібницю."><h3>Що ви отримуєте</h3><p>Саме те, про що домовились, з інструкцією простою мовою. Ціну називаємо до початку роботи.</p></div>
+    <div class="card rv" data-more="Ми відмовляємось від задач, де не зможемо відповідати за результат або де довелось би приховувати участь ШІ.|Ви не витрачаєте час і гроші на виконавця, який «спробує». Якщо беремося, то доводимо."><h3>За що не беремося</h3><p>Навчальні роботи на замовлення, застосунки для App Store і Google Play, проєкти, де ШІ заборонено або його треба приховати.</p></div>
+  </div>
+  <div class="next rv"><span>А тепер погляньте, на що перетворився хаос із першого екрана.</span><a class="btn mag" href="#system">Далі: уся система разом <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s" id="system"><div class="wrap">
+  <div class="sys">
+    <div class="sysl">
+      <div class="head rv" style="margin-bottom:22px">
+        <span class="eyebrow">Уся система разом</span>
+        <h2 data-scr>Хаос став потоком</h2>
+        <p>Вісім процесів, які на початку бігли хто куди, тепер проходять крізь три рівні, сходяться у вузол і стають грошовим потоком. Натисніть на будь-який потік, щоб наблизитись і побачити, що ми з ним робимо.</p>
+      </div>
+      <div class="syschips" id="syschips"></div>
+      <div class="sysinfo" id="sysinfo" aria-live="polite"><b>Оберіть потік</b><span>Камера наблизиться, і ви побачите, як саме ми працюємо з цим процесом.</span></div>
+      <div class="legend"><span class="t1">рівень 1 · зв'язки</span><span class="t2">рівень 2 · ШІ</span><span class="t3">рівень 3 · пульт</span></div>
+    </div>
+    <div class="sysr" aria-hidden="true"></div>
+  </div>
+  <div class="next rv"><span>Зібрати так само можна й ваш бізнес. Починаємо з аудиту.</span><a class="btn mag" href="#audit">Далі: з чого почати <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+</div></section>
+
+<section class="s" id="audit"><div class="wrap">
+  <div class="card aud rv">
+    <div>
+      <span class="eyebrow">Перший крок · ознайомчий продукт</span>
+      <h2 data-scr>ШІ-аудит бізнесу</h2>
+      <p>Глибинний розбір того, як у вас зараз ходять замовлення, гроші, товар і звіти. Після нього і ви, і ми точно знаємо, де наші інструменти дадуть результат і чи варто нам працювати разом.</p>
+      <div class="cta"><button class="btn mag" type="button" data-audit>Залишити заявку на аудит <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button><a class="btn ghost" href="#l2">Спитати консультанта</a></div>
+      <span class="note" style="margin-top:18px">Вартість і термін аудиту повідомляємо у відповідь на заявку, на вашу пошту.</span>
+    </div>
+    <div class="audl">
+      <div data-more="Розбираємо ваші відповіді й матеріали: CRM, таблиці, звіти, регламенти, скрипти продажів, мотивацію команди.|Ви вперше бачите всі процеси на одній схемі й розумієте, де саме втрачається час."><b>01</b><span><strong>Карта процесів</strong>Як насправді рухаються замовлення, гроші й товар.</span></div>
+      <div data-more="ШІ проходить по даних і шукає розриви: ручне перенесення, подвійне введення, розбіжності між системами, заявки без відповіді.|Ви бачите втрати в конкретних місцях, а не «десь у процесах»."><b>02</b><span><strong>Де губляться час і гроші</strong>Конкретні місця, а не загальні слова.</span></div>
+      <div data-more="Для кожного місця пропонуємо рішення й рівень: проста зв'язка, ШІ-агент чи показник на пульті. З порядком і ціною.|Ви вкладаєте спершу туди, де віддача найшвидша."><b>03</b><span><strong>План автоматизації</strong>Що робити першим, що другим і скільки це коштуватиме.</span></div>
+      <div data-more="Якщо автоматизація вам не окупиться або задача не наша, ми так і скажемо.|Аудит корисний навіть без продовження: план лишається у вас."><b>04</b><span><strong>Чесна відповідь</strong>Чи можемо ми бути вам корисні.</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="s" id="contact"><div class="wrap">
+  <div class="final rv">
+    <span class="eyebrow">Зв'язок</span>
+    <h2 style="margin-top:18px">Що у вас досі робиться руками?</h2>
+    <p>Опишіть задачу кількома реченнями. Відповімо, чи можна її автоматизувати, скільки це займе і скільки коштуватиме.</p>
+    <div class="cta" style="justify-content:center;margin-top:0">
+      <a class="btn mag" href="https://freelancehunt.com/freelancer/AiraNova.html" target="_blank" rel="noopener">Написати на Freelancehunt <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 11l6-6M6 5h5v5"/></svg></a>
+    </div>
+    <p style="margin:22px auto 0;font:400 12.5px var(--f-mono)">працюємо через біржу Freelancehunt · безпечна угода: оплата надходить виконавцю лише після того, як ви приймете роботу</p>
+  </div>
+</div></section>
+
+</main>
+<footer><div class="wrap"><span>AiraNova Studio · сайти, автоматизації, ШІ-агенти · Україна</span><span>зроблено ШІ під керівництвом людини</span></div></footer>
+
+<dialog id="aud" aria-labelledby="audh">
+  <form id="audf" novalidate>
+    <header><div><span class="eyebrow">ШІ-аудит бізнесу</span><h3 id="audh">Заявка: <span id="audn">крок 1 із 3</span></h3></div><button type="button" class="xbtn" id="audx" aria-label="Закрити">×</button></header>
+    <div class="audbar"><i id="audbar"></i></div>
+    <div class="astep" data-s="0">
+      <label>Чим займається ваш бізнес і скільки йому років?<textarea name="business" rows="3" maxlength="1000" required placeholder="Наприклад: інтернет-магазин одягу, 4 роки, продаємо через Instagram і сайт"></textarea></label>
+      <fieldset><legend>Скільки замовлень або звернень на місяць?</legend><div class="opts">
+        <label><input type="radio" name="orders" value="до 100"><span>до 100</span></label><label><input type="radio" name="orders" value="100–500"><span>100–500</span></label><label><input type="radio" name="orders" value="500–2000"><span>500–2000</span></label><label><input type="radio" name="orders" value="понад 2000"><span>понад 2000</span></label></div></fieldset>
+      <fieldset><legend>Звідки приходять клієнти?</legend><div class="opts">
+        <label><input type="checkbox" name="channels" value="сайт"><span>сайт</span></label><label><input type="checkbox" name="channels" value="Instagram"><span>Instagram</span></label><label><input type="checkbox" name="channels" value="Telegram"><span>Telegram</span></label><label><input type="checkbox" name="channels" value="маркетплейси"><span>маркетплейси</span></label><label><input type="checkbox" name="channels" value="телефон"><span>телефон</span></label><label><input type="checkbox" name="channels" value="офлайн"><span>офлайн</span></label><label><input type="checkbox" name="channels" value="інше"><span>інше</span></label></div></fieldset>
+    </div>
+    <div class="astep" data-s="1" hidden>
+      <fieldset><legend>Чим уже користуєтесь?</legend><div class="opts">
+        <label><input type="checkbox" name="systems" value="CRM"><span>CRM</span></label><label><input type="checkbox" name="systems" value="сайт або магазин"><span>сайт або магазин</span></label><label><input type="checkbox" name="systems" value="облік грошей"><span>облік грошей</span></label><label><input type="checkbox" name="systems" value="каса, ПРРО"><span>каса, ПРРО</span></label><label><input type="checkbox" name="systems" value="служби доставки"><span>служби доставки</span></label><label><input type="checkbox" name="systems" value="таблиці Excel чи Google"><span>таблиці Excel чи Google</span></label><label><input type="checkbox" name="systems" value="реклама Meta чи Google"><span>реклама Meta чи Google</span></label><label><input type="checkbox" name="systems" value="поки нічого"><span>поки нічого</span></label></div></fieldset>
+      <label>Що досі робиться руками й забирає найбільше часу?<textarea name="manual" rows="3" maxlength="1000" placeholder="Наприклад: переносимо замовлення з Instagram у CRM, звіряємо оплати, збираємо звіт менеджерів"></textarea></label>
+      <label>Де, на вашу думку, губляться клієнти чи гроші?<textarea name="pain" rows="3" maxlength="1000" placeholder="Наприклад: довго відповідаємо вночі, не знаємо, яка реклама окупається, плутанина із залишками"></textarea></label>
+    </div>
+    <div class="astep" data-s="2" hidden>
+      <label>Команда: скільки людей у продажах, чи є скрипти й регламенти, як рахується мотивація і хто перевіряє звіти?<textarea name="team" rows="3" maxlength="1000" placeholder="Наприклад: 3 менеджери й керівник, є скрипти, бонус від продажів, звіт перевіряю сам"></textarea></label>
+      <label>Що хочете отримати за найближчі три місяці?<textarea name="goal" rows="2" maxlength="1000" placeholder="Наприклад: бачити всі цифри в телефоні й не перевіряти звіти руками"></textarea></label>
+      <label>Що ще нам варто знати? <em>(необов'язково)</em><textarea name="extra" rows="2" maxlength="1000"></textarea></label>
+      <div class="two"><label>Як до вас звертатись?<input type="text" name="name" maxlength="80" autocomplete="name"></label><label>Пошта для відповіді<input type="email" name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com"></label></div>
+      <p class="fine">Відповіді використаємо лише для підготовки аудиту. Вартість і термін надішлемо листом.</p>
+    </div>
+    <div class="astep" data-s="3" hidden><div class="adone" id="adone"></div></div>
+    <p class="aerr" id="aerr" role="alert"></p>
+    <footer><button type="button" class="btn ghost sm" id="audb">Назад</button><button type="submit" class="btn sm" id="audgo">Далі</button></footer>
+  </form>
+</dialog>
+
+<script>
+window.CONSULTANT_URL="https://script.google.com/macros/s/AKfycby6sUnHKJbm8B44Rd8083IWdOH0MKr1_eutknBrn75S7byvnB1h8jZQsiT02Fsyq3Iq/exec";
+(function(){
+"use strict";
+var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $ = function(s,r){return (r||document).querySelector(s)}, $$ = function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
+var sleep = function(ms){return new Promise(function(r){setTimeout(r, RM? Math.min(ms,60):ms)})};
+var mouse = {x:0,y:0,tx:0,ty:0};
+
+/* ---------- сцена: від хаосу до системи. Потоки процесів блукають урізнобій, з кожним рівнем послуг збираються у вузол і стають грошовим потоком ---------- */
+var SCN = {focus:function(){}, list:[]};
+(function(){
+  var cv = $('#gl'), fx = $('#fx'), gl = null;
+  var names=['замовлення','доставка','маркетинг','склад','фінанси','клієнти','звіти','команда'], cols=['#6fe3ff','#a88fff','#5dffb0','#ff73b8','#619eff','#4df2e6','#e0b8ff','#ffb35c'];
+  var INFO=[
+    ['Замовлення','Збираємо в одну CRM','Замовлення із сайту, Instagram і Telegram потрапляють в одну систему самі. Жодне не губиться, і видно, звідки прийшов кожен покупець.'],
+    ['Доставка','Накладні створюються самі','Нова пошта й Укрпошта під\'єднані до CRM. Клієнт одразу отримує номер відстеження, а менеджер не заповнює форми руками.'],
+    ['Маркетинг','Видно, яка реклама продає','Витрати з рекламних кабінетів зводимо із замовленнями. Гроші йдуть у те, що приводить покупців, а не просто кліки.'],
+    ['Склад','Залишки без розбіжностей','Залишки з CRM самі оновлюються на сайті, а скрипт щоночі шукає розбіжності. Ви не продаєте те, чого немає.'],
+    ['Фінанси','Кожна оплата в обліку','Оплата підтверджується, чек видається, надходження записується в облік. Наприкінці місяця картина грошей уже готова.'],
+    ['Клієнти','Відповідь без очікування','ШІ-менеджер відповідає за вашими скриптами, коли команда відпочиває, а складні питання передає людям.'],
+    ['Звіти','Звіряються самі','Звіт менеджерів автоматично порівнюється з CRM. На пульті видно, що збіглося, а де розбіжність.'],
+    ['Команда','Прозора мотивація','Модель фінансового стимулювання рахує бонуси з перевірених цифр. Команда знає правила, керівник не перевіряє руками.']
+  ];
+  var K = names.length;
+  SCN.list = INFO.map(function(x,i){return {i:i,name:x[0],short:x[1],text:x[2],col:cols[i]}});
+  try{ gl = cv.getContext('webgl',{alpha:true,antialias:false,premultipliedAlpha:true}); }catch(e){}
+  if(!gl){ fx.hidden = true; return; }
+  var small = innerWidth < 700, NIN = small?200:430, NOUT = small?600:1400, NT = small?110:230, NORB = small?90:200, N = K*NIN+NOUT+3*NT+NORB;
+  var kd = new Float32Array(N), ks = new Float32Array(N), u = new Float32Array(N), g = new Float32Array(N), r = new Float32Array(N*2);
+  for(var i=0;i<N;i++){
+    if(i<K*NIN){ kd[i]=0; ks[i]=Math.floor(i/NIN); }
+    else if(i<K*NIN+NOUT){ kd[i]=1; }
+    else if(i<K*NIN+NOUT+3*NT){ kd[i]=2; ks[i]=Math.floor((i-K*NIN-NOUT)/NT); }
+    else { kd[i]=3; }
+    u[i]=Math.random(); g[i]=Math.floor(Math.random()*3); r[i*2]=Math.random()*2-1; r[i*2+1]=Math.random()*2-1;
+  }
+  var vs = 'attribute float kd,ks,u,g;attribute vec2 r;uniform float t,asp,pr,al,len,O,F,zm,sel;uniform vec3 T;uniform vec2 node,ang,cam,ctr,cz,ms;varying vec3 vc;varying float va,vk,vg;'+
+  'vec3 pal(float k){if(k<.5)return vec3(.44,.89,1.);if(k<1.5)return vec3(.66,.56,1.);if(k<2.5)return vec3(.36,1.,.69);if(k<3.5)return vec3(1.,.45,.72);if(k<4.5)return vec3(.38,.62,1.);if(k<5.5)return vec3(.3,.95,.9);if(k<6.5)return vec3(.88,.72,1.);return vec3(1.,.7,.36);}'+
+  'vec2 lis(float k,float ph){float fx=1.+mod(k,3.);float fy=1.+mod(k*2.+1.,3.);return vec2(cz.x+cz.y*sin(fx*ph+k*1.7),.04+.88*sin(fy*1.07*ph+k*2.9+.6));}'+
+  'void main(){vec2 p;float sz=1.;float a=1.;vec3 c;float h=fract(r.x*7.31+r.y*3.17+.5);float h2=fract(r.y*9.7+r.x*1.3+.5);float calm=1.-.5*(T.x+T.y+T.z)/3.;'+
+  'if(kd<.5){float o=smoothstep(h*.55,h*.55+.45,O);float dir=mod(ks,2.)<.5?1.:-1.;float ph=dir*t*(.05+.025*fract(ks*.37+.2))+u*.6+ks*2.1;'+
+  'vec2 pc=lis(ks,ph)+r*(.016+.1*pow(abs(sin(t*.21+ks*1.3+u*3.)),3.));'+
+  'float pq=floor(ks*.5);float cyc=t/(5.5+pq*1.4)+pq*.37;float cn=floor(cyc);float cc=fract(cyc);'+
+  'vec2 M=vec2(cz.x+cz.y*.8*sin(cn*12.9898+pq*4.1),.7*sin(cn*78.233+pq*2.3));float sd=mod(ks,2.)<.5?1.:-1.;float aa=cn*3.7+pq;vec2 ax=vec2(cos(aa),sin(aa));'+
+  'float part=step(h2,.7);float fl=0.;'+
+  'if(cc<.5){float wi=smoothstep(.2,.46,cc)*part;vec2 jet=M+ax*sd*(.5-cc)*(.5+2.2*u)+r*.02;pc=mix(pc,jet,wi);}'+
+  'else{float e=(cc-.5)*2.;vec2 dv=normalize(r+vec2(.001))*(.12+.8*fract(h*7.3));vec2 bp=M+dv*(1.-exp(-e*4.5))+vec2(0.,-.3*e*e);pc=mix(pc,bp,part*(1.-smoothstep(.55,1.,e)));fl=part*exp(-e*6.);}'+
+  'float sp=.018+.012*fract(ks*.37+.2);float q=fract(u+t*sp);float th=mix(ang.x,ang.y,ks/7.);vec2 d=vec2(cos(th),sin(th));vec2 n=vec2(-d.y,d.x);'+
+  'vec2 po=mix(node+d*2.3,node,q);float w=pow(1.-q,1.15);float m=mod(ks,4.);float ch;'+
+  'if(m<.5)ch=sin(q*13.+t*.3+ks)*.2;else if(m<1.5)ch=(abs(fract(q*4.5+t*.035)-.5)-.25)*.85;else if(m<2.5)ch=sin(q*21.-t*.45)*.13+sin(q*3.+t*.18)*.12;else ch=sin(q*5.+t*.2+ks)*.3+sin(q*17.+ks)*.05;'+
+  'po+=n*(ch*w*calm+r.x*(.012+.085*w*calm))+d*r.y*.03;p=mix(pc,po,o);'+
+  'c=mix(pal(ks),vec3(1.),smoothstep(.82,1.,q)*o);a=mix(.95,smoothstep(0.,.08,q),o)*(.5+.5*fract(r.y*5.+.5));sz=(1.3+1.7*fract(r.x*3.+.5))*mix(1.3,1.,o);fl*=1.-o;c=mix(c,vec3(1.),fl);a*=1.+2.*fl;sz*=1.+1.2*fl;'+
+  'if(sel>-.5){if(abs(ks-sel)<.5){a*=1.5;sz*=1.25;}else a*=.22;}}'+
+  'else if(kd<1.5){float o=smoothstep(h*.5,h*.5+.5,O);float q=fract(u+t*.03);'+
+  'vec2 pc=vec2(cz.x+cz.y*r.x*1.02,1.1-2.2*fract(u*3.+t*(.012+.012*h)));'+
+  'float L=len*(1.+.1*F);vec2 po=node+vec2(0.,-1.)*q*L;float sx=sin(q*5.-t*.3)*.1*q+r.x*(.02+.07*q+.2*q*q);'+
+  'po.x=mix(node.x+sx,r.x*asp*1.03,F*smoothstep(.04,.55,q));p=mix(pc,po,o);'+
+  'float vf=mix(.07,.14+.26*O+.6*F,o);float vis=smoothstep(vf,vf-.04,h2);'+
+  'c=g<.5?vec3(1.,.8,.2):(g<1.5?vec3(.36,.62,1.):vec3(.22,.92,.45));'+
+  'a=mix(.5,smoothstep(0.,.05,q)*(1.-smoothstep(.9,1.,q)),o)*(.6+.4*fract(r.y*7.+.5))*vis;sz=(6.5+5.5*fract(r.x*5.+.5))*mix(.8,.55+.45*smoothstep(0.,.35,q),o)*(1.+.55*F);'+
+  'if(sel>-.5&&sel<90.)a*=.3;}'+
+  'else if(kd<2.5){float tk=ks<.5?T.x:(ks<1.5?T.y:T.z);float o=smoothstep(h*.5,h*.5+.5,tk);'+
+  'vec2 pc=vec2(cz.x+cz.y*sin(t*.05*(1.+h)+u*40.),sin(t*.06*(1.+u)+r.x*40.));vec2 po;float la=u*6.2832;a=1.;sz=1.6;'+
+  'if(ks<.5){float an=la+t*.12;po=node+.17*vec2(cos(an),sin(an));a=step(.3,fract(u*22.));c=vec3(.44,.89,1.);}'+
+  'else if(ks<1.5){float rr=.27*.866/cos(mod(la,1.0472)-.5236);float an=la-t*.08;po=node+rr*vec2(cos(an),sin(an));c=vec3(.72,.58,1.);sz=1.5+2.2*smoothstep(.07,0.,abs(mod(la,1.0472)-.5236)-.45);}'+
+  'else{float rot=g*1.0472+t*.05;float an=la+t*.14*(1.+g*.3);vec2 e=vec2(cos(an),sin(an)*.36)*.4;po=node+vec2(e.x*cos(rot)-e.y*sin(rot),e.x*sin(rot)+e.y*cos(rot));c=vec3(1.,.62,.2);}'+
+  'vec2 rl=po-node;po=node+rl+ms*length(rl)*2.4;p=mix(pc,po,o);a*=mix(.16,1.,o);if(sel>-.5&&sel<90.)a*=.35;}'+
+  'else{float an=u*6.2832+t*(.2+.3*fract(r.x*3.+.5));float rd=(.04+.07*fract(r.y*2.+.5))*(1.+.15*sin(t*.7+u*9.));p=node+rd*vec2(cos(an),sin(an));c=vec3(1.,.96,.88);a=.85*smoothstep(.08,.5,O);sz=1.5;}'+
+  'p+=ms*(.4+1.2*h);p=(p-cam)*zm+ctr;gl_Position=vec4(p.x/asp,p.y,0.,1.);gl_PointSize=pr*sz*1.7*mix(1.,zm,.6);vc=c;va=a*al;vk=kd;vg=g;}';
+  var fs = 'precision mediump float;varying vec3 vc;varying float va,vk,vg;uniform sampler2D tx;'+
+  'void main(){float o;if(vk>.5&&vk<1.5){o=texture2D(tx,vec2((gl_PointCoord.x+vg)/3.,gl_PointCoord.y)).a;}else{o=smoothstep(.5,.05,length(gl_PointCoord-.5));}o*=va;gl_FragColor=vec4(vc*o,o);}';
+  function sh(type,src){var o=gl.createShader(type);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.warn(gl.getShaderInfoLog(o));return o}
+  var pg = gl.createProgram(); gl.attachShader(pg,sh(gl.VERTEX_SHADER,vs)); gl.attachShader(pg,sh(gl.FRAGMENT_SHADER,fs)); gl.linkProgram(pg);
+  if(!gl.getProgramParameter(pg,gl.LINK_STATUS)){ fx.hidden = true; return; }
+  gl.useProgram(pg);
+  function attr(name,data,n){var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);var l=gl.getAttribLocation(pg,name);if(l<0)return;gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,n,gl.FLOAT,false,0,0)}
+  attr('kd',kd,1);attr('ks',ks,1);attr('u',u,1);attr('g',g,1);attr('r',r,2);
+  var ac=document.createElement('canvas');ac.width=192;ac.height=64;var ax=ac.getContext('2d');ax.fillStyle='#fff';ax.textAlign='center';ax.textBaseline='middle';ax.font='700 50px "Segoe UI",Arial,sans-serif';
+  ['₴','€','$'].forEach(function(c,i){ax.fillText(c,32+i*64,35)});
+  var tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,ac);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  var U={}; ['t','asp','pr','al','len','node','ang','tx','O','F','zm','sel','T','cam','ctr','cz','ms'].forEach(function(n){U[n]=gl.getUniformLocation(pg,n)});
+  gl.uniform1i(U.tx,0); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE); gl.clearColor(0,0,0,0);
+
+  var labs=names.map(function(n,i){var s=document.createElement('button');s.type='button';s.tabIndex=-1;s.textContent=n;s.style.setProperty('--c',cols[i]);fx.appendChild(s);
+    s.addEventListener('click',function(){SCN.focus(S.sel===i?-1:i)});s.addEventListener('pointerenter',function(){S.hov=i});s.addEventListener('pointerleave',function(){S.hov=-1});return s});
+  var core=document.createElement('span');core.className='core';core.textContent='ШІ';fx.appendChild(core);
+  var cash=document.createElement('span');cash.className='cash';cash.textContent='грошовий потік';fx.appendChild(cash);
+  var tl=['рівень 1','рівень 2','рівень 3'].map(function(n,i){var s=document.createElement('span');s.className='tl t'+(i+1);s.textContent=n;fx.appendChild(s);return s});
+  var tag=document.createElement('div');tag.className='ftag';fx.appendChild(tag);
+
+  var W=0,H=0,dpr=1,MS=[0,0];
+  function size(){dpr=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;gl.viewport(0,0,cv.width,cv.height);stages()}
+  var S={O:0,T:[0,0,0],F:0,al:1,nx:0,ny:0,a0:0,a1:0,len:1.5,zm:1,cx:0,cy:0,tx:0,ty:0,sel:-1,hov:-1,sys:0,lab:1}, G={O:0,T:[0,0,0],F:0,al:1,sys:0,mid:0,lab:1};
+  var eF=$('#flow'), e2=$('#l2'), e3=$('#l3'), eS=$('#system'), eC=$('#contact');
+  function cl(v){return v<0?0:v>1?1:v}
+  function pr(el,k){if(!el)return 0;var b=el.getBoundingClientRect();return cl((innerHeight*(k||.7)-b.top)/Math.max(1,b.height))}
+  function stages(){
+    var ho=cl(scrollY/(innerHeight*.9)), t1=pr(eF), t2=pr(e2), t3=pr(e3);
+    G.T=[t1,t2,t3]; G.O=cl(.1*ho+.3*t1+.28*t2+.32*t3);
+    var sb=eS?eS.getBoundingClientRect():null; G.sys=sb?cl((innerHeight*.85-sb.top)/(innerHeight*.45))*cl((sb.bottom-innerHeight*.25)/(innerHeight*.3)):0;
+    var cb=eC?eC.getBoundingClientRect():null; G.F=cb?cl((innerHeight-cb.top)/(innerHeight*.75)):0;
+    G.mid=ho*(1-G.sys)*(1-G.F);
+    G.lab=Math.max(1-ho*1.7,G.sys);
+    fx.classList.toggle('live',G.sys>.6);
+    if(G.sys<.3&&S.sel>-1) SCN.focus(-1);
+  }
+  addEventListener('scroll',stages,{passive:true}); addEventListener('resize',size); size();
+  function px(el,x,y,asp){x+=MS[0];y+=MS[1];x=(x-S.cx)*S.zm+S.tx;y=(y-S.cy)*S.zm+S.ty;el.style.left=((x/asp*.5+.5)*W)+'px';el.style.top=((.5-y*.5)*H)+'px';return [x/asp*.5+.5,.5-y*.5]}
+  function mix(a,b,k){return a+(b-a)*k}
+  var listeners=[];
+  SCN.on=function(f){listeners.push(f)};
+  SCN.focus=function(i){S.sel=i;labs.forEach(function(l,k){l.classList.toggle('sel',k===i)});
+    if(i>-1){tag.innerHTML='<b>'+INFO[i][1]+'</b><span>'+INFO[i][2]+'</span>';tag.style.setProperty('--c',cols[i]);tag.classList.add('on')}else tag.classList.remove('on');
+    listeners.forEach(function(f){f(i)}); if(RM) requestAnimationFrame(frame)};
+  var t0=performance.now(), first=true;
+  function frame(now){
+    var t=(now-t0)/1000, k=first?1:.06; first=false;
+    mouse.x += (mouse.tx-mouse.x)*.04; mouse.y += (mouse.ty-mouse.y)*.04;
+    var asp=W/H, wide=asp>1.15;
+    S.O+=(G.O-S.O)*k; S.F+=(G.F-S.F)*k; S.sys+=(G.sys-S.sys)*k; S.lab+=(G.lab-S.lab)*k; for(var j=0;j<3;j++)S.T[j]+=(G.T[j]-S.T[j])*k;
+    // де стоїть вузол: герой, середина сайту, «уся система», фінал
+    var hx=wide?asp*.5:0, hy=wide?.2:.62, mx=wide?asp*.8:0, my=wide?.12:.3, sx=wide?asp*.4:0, sy=wide?.02:.34, fxx=0, fy=.93;
+    var ho=cl(scrollY/(innerHeight*.9)), nx=mix(hx,mx,ho), ny=mix(hy,my,ho);
+    nx=mix(nx,sx,G.sys); ny=mix(ny,sy,G.sys); nx=mix(nx,fxx,G.F); ny=mix(ny,fy,G.F);
+    nx+=mouse.x*.09; ny-=mouse.y*.07; MS[0]=mouse.x*.1; MS[1]=-mouse.y*.08;
+    S.nx+=(nx-S.nx)*k; S.ny+=(ny-S.ny)*k;
+    var a0=mix(wide?-.24*Math.PI:.08*Math.PI,.08*Math.PI,G.F), a1=mix(wide?.6*Math.PI:.92*Math.PI,.92*Math.PI,G.F);
+    S.a0+=(a0-S.a0)*k; S.a1+=(a1-S.a1)*k;
+    var al=(wide?1:.6)*(1-.5*G.mid); S.al+=(al-S.al)*k;
+    var czx=wide?asp*.2:0, czy=wide?asp*.76:asp*.95;
+    // наближення до вибраного потоку
+    var zt=1, cx=S.nx, cy=S.ny, tx=S.nx, ty=S.ny;
+    if(S.sel>-1){var th=S.a0+(S.a1-S.a0)*S.sel/7; zt=wide?2.1:1.7; cx=S.nx+Math.cos(th)*.72; cy=S.ny+Math.sin(th)*.72; tx=wide?asp*.5:0; ty=wide?.12:.42;}
+    S.zm+=(zt-S.zm)*.07; S.cx+=(cx-S.cx)*.07; S.cy+=(cy-S.cy)*.07; S.tx+=(tx-S.tx)*.07; S.ty+=(ty-S.ty)*.07;
+    if(S.sel<0&&S.zm<1.004){S.zm=1;S.cx=S.tx=S.nx;S.cy=S.ty=S.ny}
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform1f(U.t,t); gl.uniform1f(U.asp,asp); gl.uniform1f(U.pr,dpr); gl.uniform1f(U.al,S.al); gl.uniform1f(U.len,mix(wide?1.5:1.9,2.3,G.F));
+    gl.uniform1f(U.O,S.O); gl.uniform1f(U.F,S.F); gl.uniform3f(U.T,S.T[0],S.T[1],S.T[2]); gl.uniform1f(U.zm,S.zm);
+    gl.uniform1f(U.sel,S.sel>-1?S.sel:(S.hov>-1&&S.sys>.6?S.hov:-1));
+    gl.uniform2f(U.node,S.nx,S.ny); gl.uniform2f(U.ang,S.a0,S.a1); gl.uniform2f(U.cam,S.cx,S.cy); gl.uniform2f(U.ctr,S.tx,S.ty); gl.uniform2f(U.cz,czx,czy); gl.uniform2f(U.ms,MS[0],MS[1]);
+    gl.drawArrays(gl.POINTS,0,N);
+    // підписи
+    var ord=cl((S.O-.25)/.5);
+    px(core,S.nx,S.ny,asp); core.style.opacity=cl((S.O-.1)*3)*(wide?1:S.lab)*(1-S.F);
+    cash.style.opacity=cl((S.O-.5)*3)*S.lab*(S.sel>-1?0:1); px(cash,S.nx+.3,S.ny-.72,asp);
+    for(var i=0;i<K;i++){
+      var dir=i%2?-1:1, ph=dir*t*(.05+.025*((i*.37+.2)%1))+.9*.6+i*2.1, fxq=1+i%3, fyq=1+(i*2+1)%3;
+      var lx=czx+czy*Math.sin(fxq*ph+i*1.7), ly=.04+.88*Math.sin(fyq*1.07*ph+i*2.9+.6);
+      var th2=S.a0+(S.a1-S.a0)*i/7, ox=S.nx+Math.cos(th2)*.62, oy=S.ny+Math.sin(th2)*.62;
+      var sp=px(labs[i],mix(lx,ox,ord),mix(ly,oy,ord),asp);
+      var hid=(wide&&S.sys<.5&&sp[0]<.52)||sp[1]>.93||sp[1]<.09||sp[0]>.97||sp[0]<.03;
+      labs[i].style.opacity=hid?0:S.lab*(S.sel>-1&&S.sel!==i?.35:1); labs[i].style.pointerEvents=(!hid&&G.sys>.6)?'auto':'none';
+    }
+    var rr=[.17,.27,.4]; for(var q=0;q<3;q++){px(tl[q],S.nx-rr[q]*.72,S.ny-rr[q]*.72,asp);tl[q].style.opacity=cl((S.T[q]-.55)*3)*S.sys*(S.sel>-1?0:1)}
+    px(tag,S.cx,S.cy,asp);
+    fx.style.opacity=1;
+    if(!RM) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  if(RM) addEventListener('scroll',function(){requestAnimationFrame(frame)},{passive:true});
+})();
+
+/* ---------- курсор, прогрес, магнітні кнопки, нахил карток ---------- */
+var glow=$('#glow'), bar=$('#bar');
+addEventListener('pointermove',function(e){
+  mouse.tx=(e.clientX/innerWidth-.5)*2; mouse.ty=(e.clientY/innerHeight-.5)*2;
+  if(e.pointerType==='mouse'){glow.style.opacity=1;glow.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)'}
+},{passive:true});
+function prog(){var max=document.documentElement.scrollHeight-innerHeight;bar.style.transform='scaleX('+(max>0?scrollY/max:0)+')'}
+addEventListener('scroll',prog,{passive:true});prog();
+if(matchMedia('(hover:hover)').matches && !RM){
+  $$('.mag').forEach(function(b){
+    b.addEventListener('pointermove',function(e){var r=b.getBoundingClientRect();b.style.setProperty('--bx',((e.clientX-r.left-r.width/2)*.22)+'px');b.style.setProperty('--by',((e.clientY-r.top-r.height/2)*.3)+'px')});
+    b.addEventListener('pointerleave',function(){b.style.setProperty('--bx','0px');b.style.setProperty('--by','0px')});
+  });
+}
+$$('.card').forEach(function(c){
+  c.addEventListener('pointermove',function(e){var r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    c.style.setProperty('--mx',x+'px');c.style.setProperty('--my',y+'px');
+    if(c.classList.contains('tilt')&&!RM&&e.pointerType==='mouse'){c.style.setProperty('--ry',((x/r.width-.5)*7)+'deg');c.style.setProperty('--rx',((.5-y/r.height)*7)+'deg')}});
+  c.addEventListener('pointerleave',function(){c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')});
+});
+
+/* ---------- слово в заголовку ---------- */
+(function(){
+  var el=$('#rot'), words=['автоматизації','сайти','ШІ-агентів'], i=0; if(RM) return;
+  (async function loop(){for(;;){await sleep(2300);var w=el.textContent;while(w.length){w=w.slice(0,-1);el.textContent=w;await sleep(34)}i=(i+1)%words.length;var n=words[i];for(var k=1;k<=n.length;k++){el.textContent=n.slice(0,k);await sleep(62)}}})();
+})();
+
+/* ---------- стрічка інтеграцій: кожну можна натиснути ---------- */
+(function(){
+  var items=[{"n":"WooCommerce","c":"#96588A","p":"M.754 9.58a.754.754 0 00-.754.758v2.525c0 .42.339.758.758.758h3.135l1.431.799-.326-.799h2.373a.757.757 0 00.758-.758v-2.525a.757.757 0 00-.758-.758H.754zm2.709.445h.03c.065.001.124.023.179.067a.26.26 0 01.103.19.29.29 0 01-.033.16c-.13.239-.236.64-.322 1.199-.083.541-.114.965-.094 1.267a.392.392 0 01-.039.219.213.213 0 01-.176.12c-.086.006-.177-.034-.263-.124-.31-.316-.555-.788-.735-1.416-.216.425-.375.744-.478.957-.196.376-.363.568-.502.578-.09.007-.166-.069-.233-.228-.17-.436-.352-1.277-.548-2.524a.297.297 0 01.054-.222c.047-.064.116-.095.21-.102.169-.013.265.065.288.238.103.695.217 1.284.336 1.766l.727-1.387c.066-.126.15-.192.25-.199.146-.01.237.083.273.28.083.441.188.817.315 1.136.086-.844.233-1.453.44-1.828a.255.255 0 01.218-.147zm1.293.36c.056 0 .116.006.18.02.232.05.411.177.53.386.107.18.161.395.161.654 0 .343-.087.654-.26.94-.2.332-.459.5-.781.5a.88.88 0 01-.18-.022.763.763 0 01-.531-.384 1.287 1.287 0 01-.158-.659c0-.342.085-.655.258-.937.202-.333.462-.498.78-.498zm2.084 0c.056 0 .116.006.18.02.236.05.411.177.53.386.107.18.16.395.16.654 0 .343-.086.654-.259.94-.2.332-.459.5-.781.5a.88.88 0 01-.18-.022.763.763 0 01-.531-.384 1.287 1.287 0 01-.16-.659c0-.342.087-.655.26-.937.202-.333.462-.498.78-.498zm4.437.047c-.305 0-.546.102-.718.304-.173.203-.256.49-.256.856 0 .395.086.697.256.906.17.21.418.316.744.316.315 0 .559-.107.728-.316.17-.21.256-.504.256-.883s-.087-.673-.26-.879c-.176-.202-.424-.304-.75-.304zm-1.466.002a1.13 1.13 0 00-.84.326c-.223.22-.332.499-.332.838 0 .362.108.658.328.88.22.223.505.336.861.336.103 0 .22-.016.346-.052v-.54c-.117.034-.216.051-.303.051a.545.545 0 01-.422-.177c-.106-.12-.16-.278-.16-.48 0-.19.053-.348.156-.468a.498.498 0 01.397-.181c.103 0 .212.015.332.049v-.537a1.394 1.394 0 00-.363-.045zm12.414 0a1.135 1.135 0 00-.84.326c-.223.22-.332.499-.332.838 0 .362.108.658.328.88.22.223.506.336.861.336.103 0 .22-.016.346-.052v-.54c-.116.034-.216.051-.303.051a.545.545 0 01-.422-.177c-.106-.12-.16-.278-.16-.48 0-.19.053-.348.156-.468a.498.498 0 01.397-.181c.103 0 .212.015.332.049v-.537a1.394 1.394 0 00-.363-.045zm-9.598.06l-.29 2.264h.579l.156-1.559.395 1.559h.412l.379-1.555.164 1.555h.603l-.304-2.264h-.791l-.12.508c-.03.13-.06.264-.087.4l-.067.352a29.97 29.97 0 00-.258-1.26h-.771zm2.768 0l-.29 2.264h.579l.156-1.559.396 1.559h.412l.375-1.555.165 1.555h.603l-.305-2.264h-.789l-.119.508c-.03.13-.06.264-.086.4l-.066.352c-.063-.352-.15-.771-.26-1.26h-.771zm3.988 0v2.264h.611v-1.031h.012l.494 1.03h.645l-.489-1.019a.61.61 0 00.37-.552.598.598 0 00-.25-.506c-.167-.123-.394-.186-.68-.186h-.713zm3.377 0v2.264H24v-.483h-.63v-.414h.54v-.468h-.54v-.416h.626v-.483H22.76zm-4.793.004v2.264h1.24v-.483h-.627v-.416h.541v-.468h-.54v-.415h.622v-.482h-1.236zm2.025.432c.146.003.25.025.313.072.063.046.091.12.091.227 0 .156-.135.236-.404.24v-.54zm-15.22.011c-.104 0-.205.069-.301.211a1.078 1.078 0 00-.2.639c0 .096.02.2.06.303.049.13.117.198.196.215.083.016.173-.02.27-.106.123-.11.205-.273.252-.492.016-.077.023-.16.023-.246 0-.097-.02-.2-.06-.303-.05-.13-.116-.198-.196-.215a.246.246 0 00-.045-.006zm2.083 0c-.103 0-.204.069-.3.211a1.078 1.078 0 00-.2.639c0 .096.02.2.06.303.049.13.117.198.196.215.083.016.173-.02.27-.106.123-.11.205-.273.252-.492.013-.077.023-.16.023-.246 0-.097-.02-.2-.06-.303-.05-.13-.116-.198-.196-.215a.246.246 0 00-.045-.006zm4.428.006c.233 0 .354.218.354.66-.004.273-.038.46-.098.553a.293.293 0 01-.262.139.266.266 0 01-.242-.139c-.056-.093-.084-.28-.084-.562 0-.436.11-.65.332-.65Z"},{"n":"KeyCRM","u":"data:image/webp;base64,UklGRjIGAABXRUJQVlA4WAoAAAAwAAAANwAANwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBITgIAAA2Qbdu2aUdzH8VJ2bZt27Zt4xtc9WTbtm3Etm3n+pzS0d4/EBETACMFodrwPm2aNqwGJS0v5uePOLtDBoWi1/DprQrLLQ4ZIA1qturew8f/WoRDNsuj6doxpU6oC7wgSfV6z+BOBuQ4zPDqNLm/HfqJ5NNhRY2nL1KNqz1jNIzmPFstJS/e24yRhsy3wUxh4vJfN5KIootwS/vDZCLtrH0mArrd1vnBfGH0xMv+sjYiHaoCjeKAzUc/KNo2VIFO0nDD3UAt0vzqoLbPrNMJitqQYaB46KiDpSoNFoNmbqp0W/6P+xSZKkhbP/j/Q7r1BeXNJx13AvCcDdq5/p5vFKBtO+rQZOw5F4SxVvq4XtVewWs+GGzY4Z0wvowFdC0RprmY6Gap1gRMVq/dM58NdOxbykiLnhZG6jRzMFKzgcxItWpg1BPMKoQRJa0hz0ZRXg2BjfKEZoxkR7cS2Uh+O1hiJKxmA8KCnGh/N8ydhXSX89FYLxZ+estRvo0JfRUBgP3MMk/6opMA+UnLjtTZgngARbfX0qZEfyMAXJ+dIwldlhv4b9KNdTXoSv72P3wJWSvSVLiNqDiu1xvJ01NwxB3qSZfG9iO0WM7x0Ej8b2xvSMv5cmhV4H9sQ28qLOeLoFN+f2fKWM684st50K0EXRgyTTRJKTwsw8ik/bU21RLMsH7f5Q5DldJzb+aMasAZZYl5FE5gtDP8vDS8bUtihC3m4weYanl8171j/66+OlyJIeEJHExWrMFPcy21WjZvVrOaJ5TC8vysmHjZAwYCVlA4IO4BAACQCwCdASo4ADgAPm0ukUWkIqGXDbY4QAbEtQbbwpEbrvu2sVdm5PP07wG2A54bTWt5C/a9IghHdWWUD526u3oReFwwx9zgDffXcj24diJi8x8XGXV6Te5f2NZ2AD2seV6c42OrAAD+/ocN1c9hK/qGHtjg1Y6NOP5oMgHWOym5vbnFoLrIRloGHTUYpFWzZyVeyhv9+0d9mQh4vCGVKeCZsXP5ecYUbaY/zr2WnsdMFY6E+jSL4AiUo70+iGehad56LhoIrPhAjXpexX38lMO8l4Za4IwQvheA9o4Ho+Q/ow+JNH0hsrVDI1tFopQti0oF8WgPEHMxZtxM4QYKitCuOPtEoxV//7J/SJ0ltGlybryoFmyfT6S4Lgd6D9MjX7t14mQ1nHcez5H32IdSu10NHsI0dneBoGHR0MnCx2HtJMViKNz3RUBu+/fHsc4roUmGBxVz3YxPNk/APb95X/v2qb1oomr22W3qUo6l9AiU3fBIEHGqmdZFaOxZ88+kI38WkFrs5Wnz3wX6//o3nH+x/rr0/7EB1N+f7ZWXg2yP2B6hUh2kyILAL8dcAwZRvAT0O+lBT3TUpfHft6EuIWfZ7V87U+qaWoH3/9xMe5TLOuVPa5RSVpJEkhjROemr9//k135+KUmOVKRkWxAAAA=="},{"n":"Checkbox","u":"data:image/webp;base64,UklGRiADAABXRUJQVlA4WAoAAAAgAAAALwAALwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggMgEAABAIAJ0BKjAAMAA+fTKTR6SjIaE8eAgAkA+JaQALACww/tWlT4/Lp2QXGZXnBewDQjc0KZ1PfyvFzYgKg8NugbUf6vHE/HiiPAAA/v63xkcHPX7yWYjAAen74Yv9VBPNzREP4S7A+WIddMEObSUoFBuiqKz3jT3j2ayzmPA/2tnfhtwpVLEOfr+CuGuhJ52ysik5U4u6rFbO3s2br/g18w5oFg6B59yA7zGzQEz3M/Lm1dIHJrG2OiossvSvQXKRJm7OwjtZ1uM0qp+OpgIIUR7cybnbqHLyZ8LBhJr0rGTIOQHKVQeDhLOZFDVC1ZeEuAJcW0ebcwiNe4E0JTBtXOBOmmLGGfvEReEmvpyUOEXPUv8HbF5NL/x87x/mqnoCi9CPulMpNr2KxoOVv15MW4AAAA=="},{"n":"Finmap","u":"data:image/webp;base64,UklGRhgHAABXRUJQVlA4WAoAAAAwAAAALwAALwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBIIQMAAA2QtW172rYDkiGkkN3GSSFYZu5ZT9f95u04Z2XGMPTy7DXUMF22bEFEMHDbSNHCwcBO251XAMIU4Pbx5nIs7HeDXutfKfNy9dQZA8wkWxJLix1NqzXboylwOH2BmdB8oPKeoTTwXikUCUt9MJ0CZBddMCgrC1K9+qXX2xOK7do5Xi7VBpMpB8CUA5wBxlIAbp+mMlePfeJyR854rWuJBxzgjFCExghF4gTkqDJJqz3rsOJxKomNFiJiwWbG4Tl4Vlekt4I2mGKGM3Qab4wJ+KwsbOkw9qt4oQ8wXuW00zKui2UKnmgSXmg922mRRBx5GRY6cjNZLKgTa6GzjfrIUJb1wxs9f00bdRCCHb41MjTETcoE3hOVJ49tAATpWAPEbZCkc64oV/UxgKHlzpTHsmCouLqY0Ttgeb4CWCbh/uWoWhDWFuhOtHYjCQrw7//LwkVpbCIiFkGdiDkGAwVu1yvbTaQTpghjjCj54fEXxTm4CmT1HZHwpm4ioz4RIw4GkjK7/E1BmYmoPBNrkm2kyzBY4FEEg+E23mdwZO1GCP0jijOZVHS63FSsifeNbWqHQL45ugA8hq4oclgKxE+y6KNRy+ni8JzpWVr59weaDyKTzW98I1lYFGn/lAJBYHK31LDLhFy05ZqNjCxzNpYclvGUlmCt9qIoVAxQHp3imn6lRJwchr4JjrGBq19P0C+JGCC2LBRGtUedRrNTaWx6CR1kZYkVB4Oq8yQJ46x64MO1HGN/NS/mASioUcnD4fuE3t/9zvkB6OiZ2CquEFP3fpSTAgDj+vXsKhRs2Fls487Hfz8C0H6YSlFzWU9k2eU6x6Mx6adff0chYL3zTuVPytyWpRaKiS3jk+7H1jzjzks+7rYj6WkXMBHzCOQfjJbjbjnfceGwDPSL4nkMchSdiMRB0pb+xl0cFvtAK7xKK2seQPfZff+sp2xejFNNT5TFmQAUibZR+6dW0XgeD95a5/EqkzrdhlPE3VTcplD95bac9JubYrXr+le1Li2E5QB0OcCo32nUNLUVjPgF+lbIvFcCCyE56HWKYDT4aX7rWodkAQBWUDggAAIAAFANAJ0BKjAAMAA+kUCZSKWkIqEuOAmYsBIJbAC2+3a7X8hx/mv/f0JPo92wHPO6cBvKOIiJqyJXcbOk/EAMdlQAmCeCiT/IDb430QClNS0lxE1kcHuts9n//bGxoju+NVJPq7XXJV2BJy1HlH/GZ2Pp+AAA/slJukYQWaafnHTIoLS2ppWXbmrDam1GUmoDUFbhrp9pCa2XsCwEFjwhQVgkhMc0gdH916whYYHnxHsA/46jadvBetb7wl6TtmfpnFQ3deP6xmZuygwU4x9eN6g9g3zcTeN3XNkYgYmAo3jxFK54pwWhtfFfgQ0A+UoA3JQIExeQr1FR6Udwkzlt04FIW3ot45hkjzD9bTgoWw3AKOiWV7sF68EhiN1dpnIljsAUNHHgdhzmzCJ0Is54d6IhC0PICA4WFY4XTGQHDT7z4AVDXYBJG97pnB01r7pE0NbChOeoeWxsuahVdSJdU+gNWFqoBR9Ci/izNtG37htWh27whULoaxGEFL0EmzXt2BPECc5CnbIMiQIh05K5uN7ucrahRZqEwCFG7org2WpC8gTufvsnvSsnD7Uw84lY941tvqckl04sgIG+dZTQooWvV6++wVfsQFHxY4rt44rbser2DaNo81ut18ly5j9evkbt1lJolfjL2l2g55G5SUxAaHdg8eI82z/hrQGSIAAA"},{"n":"WayForPay","u":"data:image/webp;base64,UklGRrIHAABXRUJQVlA4WAoAAAAwAAAALwAALwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBIPgQAAA25LkT0P0DHtiVFkvS/RWQzM7feSxh5Vk3SbGLkZubEyrB/3MzccwsRE8DAbSNFB3u0kHZ6n0AAgIsAniP5COAXgJ9I9oR2hAjgPgBD8ieAfwn9x5kXhG6A3LYA/gexV+YTuwP4SwH4Q0+yQnIVyUtAMyMzoJmQISAjZ0i+A5gBXWTkyMhFJJ+RXAFAQiBA4owjgnifalZkwCMmn9r4GFvGCRWm81aqzHwbXMFT+uY4MQuCCyCpi1H0kpsZt7MQukDoHBIyAAQTmT0G8JvQF3ALAJwRuqhcCviKi2kruJThjoAcCQGBpJry4Ex9ILeyQwLGiXEBkx+MawoKuYSRxa5GVdc4EHL0057AY0J7AgcgiyL1JiAiOMe4y7q3g2lLBzFQRgsZEaGGlXOHmpR54iG1i4CRg4VL6uxmFqaNKPzOuPNOPewAbJDcAwdnioIJwEVCM4B38jXdE/L7h8HwNSGhRVrbSQiBJTng0qUep0hN67dEqCV06E/ypDVgoLH1d3GUYeRuA1gDGBi6AXAewG1CRwBbdEEHX44qO9iH+4Cr2D56l507hIZ0+mwkVegFQ+5q4p7QJUKu75AkJB85c5fQjCLn4VZq2SO5wqyNDCwfB5UKEdlTgMQsYsU0PLQmVZzFw1HBSh5MhCyBob0PEVlQqVSXOPMOyB3gjgBmsUzxagGwRmKgPVUVJDel2KqixTTjOgEA1+BPTdNim5+ccUYmTqRHEqo5Me7ENAZSTNKbzF39o26ShNqRJj8bt4D2MYsFKwKzYWEvMkcHbrIASPDUW8Q0a2q/WC4YxkGIvyvyXP2hNL8Y0qyp02QV6ERwkk5M9d9J3h8BTEgm2cg5AK8ALAKj334Sukvgh67nyPCcJtJUzGxAw/R04ovi8rWSVZMSKYpRgHqmMLfIJzCUQMkgdAbgEpAzAPeRHAyatAjWWpfS5OOgqYonQg5GQypeV7x2ht7B6xxaIp5Uo6asWpqFWRiSRdlmJEdCH5BcA/CIkXPMwTAn7rfIUkxX8t832bbE5vxG9pqO8X2I7i1vKelelyOXBPoIxnv6Qm6WwBORRdqV8y3oMpJzhN4RWgO4oOSEQK4C+ELowOwNutQx/WMyV5VVdlsgp2u/Tr2LsX1Tz7pSl5OsUCZZzlsreLlceb23sXNEch3IL0L3ldCupVlyjpu8Y9wWAWU14m38GbUJ/UVlzU8oTg5jCKiVuma1kw/SI8QRJau2ZAvgVgBk5bxhwDLxmQSAb0i+Me4OgC2AM0IzI4tITsnZATQxox9kIDKwy0NTmAsUjC6PQiGzqh+cwVR5OuAyzUqVEyzttvrzi8ADIF8BXGF29oReceYaMecRLACMmAOSAyAgeIy+a6uE0vQ1iQjy5zFOMspymRS1OU+4klIDvDZEAhI1zgoldP5hdAFRH9cWmASj7xZZ30lfoOrPoGA7daYjMMO4A1ZQOCB+AQAAsAgAnQEqMAAwAD6ROpdHpaMiITHZmACwEglqDbrnGAUo2e4V/wXr9sBdrm8no0DaqvA1utG/z73NZ9fnTAAMdUe0H5STAKsEpUKhoZwAAP75CqUlCnnonBZA4T2BGmqunpXaoq1qvOnmRRBWlsgOpbOMbnOonBI9hV2y+uFaeIhfU5KfcKB4vNSYSqTTs/7heVLvH4ZirEvFBHfpzKvz7L9eNA3UkVuFojfFJneDREewj8E2o5IbM1PfwjlU+8ngRXzJrNOQrk3W+pm+9HCu52371zum5tiMthWp4jIs5pJ/jVb5I5n/pT40gUK2p0ZqZci0LRwtXtc9Z7RrHHuDa5zhjn/991ezJyTAw+gV15av/6BXnXZwvuEZEhiLwDEcytfF5aqIT0kzeucsRbHhkSMUQGAoCaa+4ZpKkg8ur3L7GU+9C8/z/xk7alQbh3Pv/j/n50frv1lKhg1Hwtmotf9jU2yhBHDOKzj3TOrNnx0IeEwNH1lQ4p8kONZAAA=="},{"n":"Нова пошта","u":"data:image/webp;base64,UklGRi4EAABXRUJQVlA4WAoAAAAgAAAALwAALwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggQAIAAPAPAJ0BKjAAMAA+iTSVR6UioiEx2Z34oBEJbADBFYG6/yBKZwpfna00egDxD/wA3wHnHf0D1c/7f1AP9V6QH+S9iD0APLb9lb9tv2jxDf+u9Ss56bNY/ANw0HIiGpS+YpBAERhfcbcAcbvcwEj0CeWPLwoJiKApQnAFkSEjnCBPqvtk/48rYAAA/u2lIsNX5fCAIOQA+kHXcwMkTHphMwuaJLyqEDoT+BGNOfL1FyUp2AXJzhhLrH8HxaMBgZZPEixC/XDOSozz/Do0U0lIf1/PFUkEbqJZxFBSWcIZhoKtlPxiYC3zvqdG/d44TiLXHUYbbQ6Xgps4uI0miWDe5cZbyR5gqcovPwj2cm+RiQ9bvLol9bxepGeE85zzP5ju/zZiEBIkLd3tEP7/1O47maIcyX31/bfy7uiQL/b6wa12l25ZXGaqQOX+O2+PhWEE4gbB/JvsKDdEPDvo14YWMZRODVZuqB/6w7r8JBjD/6YZPjIWsVK6yTd4wn5bf7up7iIlox79KGeo0jEO1wrvImLDv2ry4acNW7z0r3XnpsmiU16yCP2vOSjzQUlRRCt6HgcEiJpfSn3oRBaZ5v8H8CjJtLJ+ELfxZZz+cZir5HlOn4ftxPX/+4MSpkw+bzf/sT9Hhf3Y1uGjmhwkbe+E6sZdVF/JJ06oU6tjz/KGeexINzRk03B5xnf3o+zMbKzWw+5C/pPNLqwxLLs4qlUPq+WdH2WfCIfMigOX2tsJVH6TgaKH+lEZ91gR100XyEAAAA=="},{"n":"Укрпошта","u":"data:image/webp;base64,UklGRvwEAABXRUJQVlA4WAoAAAAwAAAALwAALwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBIxQEAAA2Qg+2fITi/xdm27Tipzndl7M62bXXpbNu2bds2zpjdYGb2v1clXURMAP476gl+ROzZe6rO3VSaH6PuEFWdTIqkefEBxOZVNKRZC/IfRws8Kao20eFAfBzFTtj4eWtPArbcDqzKC7d2m1E5+Ta89qZs7nDFirnPmUaJad2iYtsGY3dqrJVPjxWaZl0qYWbfff3uXCvFwl0G0qbDTUBpaF6pOJESJVd9WSWpNx5/++Qf+nndqK9I/bwIysBujIOiJ0+/nix0l3rwjULN1cAPbLEI+xLjpFaC0qMYwq+hNezzll4yP/aT+NbjsYPTAWB1fqjEcpA2BP/6UvxdumiIqGQ3TaZgHvh7sj0Ep3xoQgX7BV9Loni1BzQacY1A8v5P0H4I4uUd44U48tgVN6Kbmbz+21//pQ8Cv+QoiC8lenGatZ/zCvCaXCO4/YHq6408jt5q4LUHkTkG+DWzQV1yJM/rLyCqeRLExnqQs6MO2SpH/sp+Orxb0TXQ2vvlqg3mhRUzfBQLX+ZrsHX7hiH1HGXM+6s02HxkfWqnYNGPrWcU2M3ubj2Q26KeE2A82bPLXUEdrHi/fseTELeKtwrqcMnzMvzLBQBWUDggQAEAAJAJAJ0BKjAAMAA+gTSVR6UjIiE8dAgAoBAJbADO6UF+AfgBz1FbOX/hz+N0cA2zt2AegB4QHwQfuN6SobBPcghSli5AA1U9opjr9o+TQKdM8QoZaAAA/v4G1c/9YKGYUEuHtBEaJFWFBwz3F7Fmn2fzgbKgdZg37MY3f/nW/YBHL3IPkCU3/cW93PwuIQqqXgyXLIpg9Vt6THWFnJZEirr0Jm+WmtHQATbh0d4C/8dn8ncQCY7iMngMu/qROufYUaEZIxjrnyC3PL3v/NEENHcqUM9Y/J6pH7I/8p+s4lCAbz5a9TgGoWGFF7tuSAeQFo1a7ZfnclW7GVN3beqv/IPIVszGorPf9U4pROLajPVs2J/6QB3fqxNU/ecynv/XP+Zb1nMq1Nz7NLk48lKRNYTO1xCbokDxybXwDLSRBUAA"},{"n":"Instagram","c":"#FF0069","p":"M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"},{"n":"Meta Ads","c":"#0467DF","p":"M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a6.624 6.624 0 0 0 .265.86 5.297 5.297 0 0 0 .371.761c.696 1.159 1.818 1.927 3.593 1.927 1.497 0 2.633-.671 3.965-2.444.76-1.012 1.144-1.626 2.663-4.32l.756-1.339.186-.325c.061.1.121.196.183.3l2.152 3.595c.724 1.21 1.665 2.556 2.47 3.314 1.046.987 1.992 1.22 3.06 1.22 1.075 0 1.876-.355 2.455-.843a3.743 3.743 0 0 0 .81-.973c.542-.939.861-2.127.861-3.745 0-2.72-.681-5.357-2.084-7.45-1.282-1.912-2.957-2.93-4.716-2.93-1.047 0-2.088.467-3.053 1.308-.652.57-1.257 1.29-1.82 2.05-.69-.875-1.335-1.547-1.958-2.056-1.182-.966-2.315-1.303-3.454-1.303zm10.16 2.053c1.147 0 2.188.758 2.992 1.999 1.132 1.748 1.647 4.195 1.647 6.4 0 1.548-.368 2.9-1.839 2.9-.58 0-1.027-.23-1.664-1.004-.496-.601-1.343-1.878-2.832-4.358l-.617-1.028a44.908 44.908 0 0 0-1.255-1.98c.07-.109.141-.224.211-.327 1.12-1.667 2.118-2.602 3.358-2.602zm-10.201.553c1.265 0 2.058.791 2.675 1.446.307.327.737.871 1.234 1.579l-1.02 1.566c-.757 1.163-1.882 3.017-2.837 4.338-1.191 1.649-1.81 1.817-2.486 1.817-.524 0-1.038-.237-1.383-.794-.263-.426-.464-1.13-.464-2.046 0-2.221.63-4.535 1.66-6.088.454-.687.964-1.226 1.533-1.533a2.264 2.264 0 0 1 1.088-.285z"},{"n":"Google Ads","c":"#4285F4","p":"M3.9998 22.9291C1.7908 22.9291 0 21.1383 0 18.9293s1.7908-3.9998 3.9998-3.9998 3.9998 1.7908 3.9998 3.9998-1.7908 3.9998-3.9998 3.9998zm19.4643-6.0004L15.4632 3.072C14.3586 1.1587 11.9121.5028 9.9988 1.6074S7.4295 5.1585 8.5341 7.0718l8.0009 13.8567c1.1046 1.9133 3.5511 2.5679 5.4644 1.4646 1.9134-1.1046 2.568-3.5511 1.4647-5.4644zM7.5137 4.8438L1.5645 15.1484A4.5 4.5 0 0 1 4 14.4297c2.5597-.0075 4.6248 2.1585 4.4941 4.7148l3.2168-5.5723-3.6094-6.25c-.4499-.7793-.6322-1.6394-.5878-2.4784z"},{"n":"GA4","c":"#E37400","p":"M22.84 2.9982v17.9987c.0086 1.6473-1.3197 2.9897-2.967 2.9984a2.9808 2.9808 0 01-.3677-.0208c-1.528-.226-2.6477-1.5558-2.6105-3.1V3.1204c-.0369-1.5458 1.0856-2.8762 2.6157-3.1 1.6361-.1915 3.1178.9796 3.3093 2.6158.014.1201.0208.241.0202.3619zM4.1326 18.0548c-1.6417 0-2.9726 1.331-2.9726 2.9726C1.16 22.6691 2.4909 24 4.1326 24s2.9726-1.3309 2.9726-2.9726-1.331-2.9726-2.9726-2.9726zm7.8728-9.0098c-.0171 0-.0342 0-.0513.0003-1.6495.0904-2.9293 1.474-2.891 3.1256v7.9846c0 2.167.9535 3.4825 2.3505 3.763 1.6118.3266 3.1832-.7152 3.5098-2.327.04-.1974.06-.3983.0593-.5998v-8.9585c.003-1.6474-1.33-2.9852-2.9773-2.9882z"},{"n":"Google Sheets","c":"#34A853","p":"M11.318 12.545H7.91v-1.909h3.41v1.91zM14.728 0v6h6l-6-6zm1.363 10.636h-3.41v1.91h3.41v-1.91zm0 3.273h-3.41v1.91h3.41v-1.91zM20.727 6.5v15.864c0 .904-.732 1.636-1.636 1.636H4.909a1.636 1.636 0 0 1-1.636-1.636V1.636C3.273.732 4.005 0 4.909 0h9.318v6.5h6.5zm-3.273 2.773H6.545v7.909h10.91v-7.91zm-6.136 4.636H7.91v1.91h3.41v-1.91z"},{"n":"Apps Script","c":"#4285F4","p":"M12.363 2.54a3.136 3.136 0 0 0-.376.022 2.864 2.864 0 0 0-1.589.828c-.562.58-.82 1.115-.773 1.943-.01.264.193 1.023.272 1.274 1.115 3.546 2.09 6.75 3.26 10.279.08.246.168.486.267.72.02.047.035.046.048-.004.077-.297.174-.612.29-.945.894-2.576 1.772-5.14 2.633-7.696a.345.345 0 0 0 .004-.217 163.054 163.054 0 0 0-1.49-4.572 2.603 2.603 0 0 0-.704-.933c-.55-.46-1.166-.694-1.842-.7Zm9.078.117a2.734 2.734 0 0 0-2.878 1.828l-4.576 13.289a2.734 2.734 0 0 0 1.695 3.475l.12.04a2.734 2.734 0 0 0 3.475-1.694L23.85 6.307a2.734 2.734 0 0 0-1.695-3.476c-.233-.1-.506-.124-.716-.174ZM12.375 3.96a1.396 1.396 0 1 1 0 2.791 1.395 1.395 0 0 1 0-2.79zm8.809.07a1.402 1.402 0 1 1 0 2.803 1.402 1.402 0 0 1 0-2.803zM5.419 7.605a2.853 2.853 0 0 0-.468.052 2.683 2.683 0 0 0-1.337.627 2.62 2.62 0 0 0-.924 1.833 3.808 3.808 0 0 0 0 .648 2.52 2.52 0 0 0 .673 1.52c.221.238.465.454.732.648 3.043 2.21 6.08 4.43 9.108 6.664a.78.78 0 0 0 .158.089c.03-.043.032-.098.007-.167a17.409 17.409 0 0 0-.317-1.066 532.752 532.752 0 0 1-2.02-6.251 41.91 41.91 0 0 0-.497-1.477c-.967-.849-2.078-1.6-3.023-2.302A3.848 3.848 0 0 0 6.153 7.7a2.388 2.388 0 0 0-.734-.094Zm.02 1.424a1.398 1.398 0 1 1 0 2.796 1.398 1.398 0 0 1 0-2.796zm-2.458 6.792c-.733-.006-1.375.202-1.927.622a2.72 2.72 0 0 0-.95 1.45 2.78 2.78 0 0 0-.09 1.04 2.74 2.74 0 0 0 .695 1.583c.664.578 1.26.85 2 .945 1.42-.005 2.84-.012 4.262-.02h.418c2.277-.003 4.513-.002 6.706.003.148.005.28.003.392-.01.06-.005.091-.031.092-.077a10.656 10.656 0 0 0-.834-.653 488.746 488.746 0 0 1-6.57-4.815.236.236 0 0 0-.14-.047c-1.34-.003-2.691-.01-4.054-.02zm-.19 1.418a1.402 1.402 0 1 1 0 2.803 1.402 1.402 0 0 1 0-2.803zm13.874.002a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"},{"n":"Telegram","c":"#26A5E4","p":"M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"},{"n":"Python","c":"#3776AB","p":"M11.858 0c-.978.005-1.913.088-2.736.234C6.7.662 6.26 1.558 6.26 3.21v2.182h5.725v.727H4.111c-1.664 0-3.121 1-3.577 2.903-.526 2.181-.549 3.542 0 5.82.407 1.694 1.379 2.902 3.043 2.902h1.969v-2.616c0-1.89 1.635-3.557 3.576-3.557h5.72c1.591 0 2.862-1.31 2.862-2.91v-5.45c0-1.553-1.309-2.718-2.863-2.977A18 18 0 0 0 11.858 0M8.762 1.755c.591 0 1.074.491 1.074 1.095 0 .601-.483 1.087-1.074 1.087A1.08 1.08 0 0 1 7.688 2.85c0-.604.48-1.095 1.074-1.095m9.656 4.364v2.543c0 1.971-1.671 3.63-3.577 3.63H9.122c-1.566 0-2.862 1.34-2.862 2.91v5.452c0 1.551 1.349 2.464 2.862 2.91 1.813.532 3.55.628 5.72 0 1.44-.418 2.862-1.258 2.862-2.91V18.47h-5.719v-.727h8.582c1.664 0 2.284-1.16 2.862-2.903.598-1.793.573-3.518 0-5.819-.41-1.656-1.196-2.903-2.862-2.903zm-3.216 13.807a1.08 1.08 0 0 1 1.074 1.088c0 .604-.48 1.094-1.074 1.094-.592 0-1.075-.49-1.075-1.094 0-.601.483-1.088 1.075-1.088"},{"n":"Ollama","c":"#000000","p":"M16.361 10.26a.894.894 0 0 0-.558.47l-.072.148.001.207c0 .193.004.217.059.353.076.193.152.312.291.448.24.238.51.3.872.205a.86.86 0 0 0 .517-.436.752.752 0 0 0 .08-.498c-.064-.453-.33-.782-.724-.897a1.06 1.06 0 0 0-.466 0zm-9.203.005c-.305.096-.533.32-.65.639a1.187 1.187 0 0 0-.06.52c.057.309.31.59.598.667.362.095.632.033.872-.205.14-.136.215-.255.291-.448.055-.136.059-.16.059-.353l.001-.207-.072-.148a.894.894 0 0 0-.565-.472 1.02 1.02 0 0 0-.474.007Zm4.184 2c-.131.071-.223.25-.195.383.031.143.157.288.353.407.105.063.112.072.117.136.004.038-.01.146-.029.243-.02.094-.036.194-.036.222.002.074.07.195.143.253.064.052.076.054.255.059.164.005.198.001.264-.03.169-.082.212-.234.15-.525-.052-.243-.042-.28.087-.355.137-.08.281-.219.324-.314a.365.365 0 0 0-.175-.48.394.394 0 0 0-.181-.033c-.126 0-.207.03-.355.124l-.085.053-.053-.032c-.219-.13-.259-.145-.391-.143a.396.396 0 0 0-.193.032zm.39-2.195c-.373.036-.475.05-.654.086-.291.06-.68.195-.951.328-.94.46-1.589 1.226-1.787 2.114-.04.176-.045.234-.045.53 0 .294.005.357.043.524.264 1.16 1.332 2.017 2.714 2.173.3.033 1.596.033 1.896 0 1.11-.125 2.064-.727 2.493-1.571.114-.226.169-.372.22-.602.039-.167.044-.23.044-.523 0-.297-.005-.355-.045-.531-.288-1.29-1.539-2.304-3.072-2.497a6.873 6.873 0 0 0-.855-.031zm.645.937a3.283 3.283 0 0 1 1.44.514c.223.148.537.458.671.662.166.251.26.508.303.82.02.143.01.251-.043.482-.08.345-.332.705-.672.957a3.115 3.115 0 0 1-.689.348c-.382.122-.632.144-1.525.138-.582-.006-.686-.01-.853-.042-.57-.107-1.022-.334-1.35-.68-.264-.28-.385-.535-.45-.946-.03-.192.025-.509.137-.776.136-.326.488-.73.836-.963.403-.269.934-.46 1.422-.512.187-.02.586-.02.773-.002zm-5.503-11a1.653 1.653 0 0 0-.683.298C5.617.74 5.173 1.666 4.985 2.819c-.07.436-.119 1.04-.119 1.503 0 .544.064 1.24.155 1.721.02.107.031.202.023.208a8.12 8.12 0 0 1-.187.152 5.324 5.324 0 0 0-.949 1.02 5.49 5.49 0 0 0-.94 2.339 6.625 6.625 0 0 0-.023 1.357c.091.78.325 1.438.727 2.04l.13.195-.037.064c-.269.452-.498 1.105-.605 1.732-.084.496-.095.629-.095 1.294 0 .67.009.803.088 1.266.095.555.288 1.143.503 1.534.071.128.243.393.264.407.007.003-.014.067-.046.141a7.405 7.405 0 0 0-.548 1.873c-.062.417-.071.552-.071.991 0 .56.031.832.148 1.279L3.42 24h1.478l-.05-.091c-.297-.552-.325-1.575-.068-2.597.117-.472.25-.819.498-1.296l.148-.29v-.177c0-.165-.003-.184-.057-.293a.915.915 0 0 0-.194-.25 1.74 1.74 0 0 1-.385-.543c-.424-.92-.506-2.286-.208-3.451.124-.486.329-.918.544-1.154a.787.787 0 0 0 .223-.531c0-.195-.07-.355-.224-.522a3.136 3.136 0 0 1-.817-1.729c-.14-.96.114-2.005.69-2.834.563-.814 1.353-1.336 2.237-1.475.199-.033.57-.028.776.01.226.04.367.028.512-.041.179-.085.268-.19.374-.431.093-.215.165-.333.36-.576.234-.29.46-.489.822-.729.413-.27.884-.467 1.352-.561.17-.035.25-.04.569-.04.319 0 .398.005.569.04a4.07 4.07 0 0 1 1.914.997c.117.109.398.457.488.602.034.057.095.177.132.267.105.241.195.346.374.43.14.068.286.082.503.045.343-.058.607-.053.943.016 1.144.23 2.14 1.173 2.581 2.437.385 1.108.276 2.267-.296 3.153-.097.15-.193.27-.333.419-.301.322-.301.722-.001 1.053.493.539.801 1.866.708 3.036-.062.772-.26 1.463-.533 1.854a2.096 2.096 0 0 1-.224.258.916.916 0 0 0-.194.25c-.054.109-.057.128-.057.293v.178l.148.29c.248.476.38.823.498 1.295.253 1.008.231 2.01-.059 2.581a.845.845 0 0 0-.044.098c0 .006.329.009.732.009h.73l.02-.074.036-.134c.019-.076.057-.3.088-.516.029-.217.029-1.016 0-1.258-.11-.875-.295-1.57-.597-2.226-.032-.074-.053-.138-.046-.141.008-.005.057-.074.108-.152.376-.569.607-1.284.724-2.228.031-.26.031-1.378 0-1.628-.083-.645-.182-1.082-.348-1.525a6.083 6.083 0 0 0-.329-.7l-.038-.064.131-.194c.402-.604.636-1.262.727-2.04a6.625 6.625 0 0 0-.024-1.358 5.512 5.512 0 0 0-.939-2.339 5.325 5.325 0 0 0-.95-1.02 8.097 8.097 0 0 1-.186-.152.692.692 0 0 1 .023-.208c.208-1.087.201-2.443-.017-3.503-.19-.924-.535-1.658-.98-2.082-.354-.338-.716-.482-1.15-.455-.996.059-1.8 1.205-2.116 3.01a6.805 6.805 0 0 0-.097.726c0 .036-.007.066-.015.066a.96.96 0 0 1-.149-.078A4.857 4.857 0 0 0 12 3.03c-.832 0-1.687.243-2.456.698a.958.958 0 0 1-.148.078c-.008 0-.015-.03-.015-.066a6.71 6.71 0 0 0-.097-.725C8.997 1.392 8.337.319 7.46.048a2.096 2.096 0 0 0-.585-.041Zm.293 1.402c.248.197.523.759.682 1.388.03.113.06.244.069.292.007.047.026.152.041.233.067.365.098.76.102 1.24l.002.475-.12.175-.118.178h-.278c-.324 0-.646.041-.954.124l-.238.06c-.033.007-.038-.003-.057-.144a8.438 8.438 0 0 1 .016-2.323c.124-.788.413-1.501.696-1.711.067-.05.079-.049.157.013zm9.825-.012c.17.126.358.46.498.888.28.854.36 2.028.212 3.145-.019.14-.024.151-.057.144l-.238-.06a3.693 3.693 0 0 0-.954-.124h-.278l-.119-.178-.119-.175.002-.474c.004-.669.066-1.19.214-1.772.157-.623.434-1.185.68-1.382.078-.062.09-.063.159-.012z"},{"n":"Open WebUI","u":"data:image/webp;base64,UklGRnQEAABXRUJQVlA4WAoAAAAwAAAALwAALwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBI5AAAAAWAc2ubAedbs7QqI05no2fl5B84VTZ1Wru20TqVbRulOdXMzsRoImIC4DspSrJQ2m67pxJazTXKKV0fvZT0eaScNAPbraBLMlVLBLAeTr0g2jQD+y0LScIQvMWkDhxn0fUmVrwQRjZtexPbIWeYtCr5m3jIq8S4S+Ftlrn/7WVUyt7EY14FRj1hehN70TsY4ZzjTaz5PWAgt/5NFJUjnHTN+AYOnddA6Nfsx2w+ewZIeYGdekbHiVMvRAD69FyxQkjp6fK+pfoIgadChTZCxeVQQK9XwyeXj0CTw+FwgCZCCMEXFlZQOCCaAQAAUAkAnQEqMAAwAD6RQplKpaOiIaON+LASCWkAFeAf1WZyLkxzbfQHsCfqNvgH6nmpYhDpY38EUAmuDhrhBIGa9zEWBgT+M3bFBVu7JFwfsRdtR4AA/sDlHSL6YdGv5HKRUy3R1WLwdnngR13oVnTYWeeBWNVGqOzDq72bTy0sfm//phS0VL9xpWlHzpWF8k16ifUJ0OAP9YnGgd7pcsrlPls9W7KCcTlF6J517P2vBeJ+5XTyKfsW/+b3S7FR/6WWzi0UryWAfUzjVrxPy9kyO0FoI+mkcXMTzad/Ns90FRzfEVy4YKNc+7h9MdFoR/gq1Gs2Qf/iCP6r89WvPv/KcagQesTkxko96uVkGsBw1qHUPQaJOGo7XGaes2wTMMZ37S+tI4vBB5HWpHqPiQl9lhy1bC4n2IPs36Do1hdoTp3+tRon8ReWZa5U2J/q4shN5FV+8i/Dop/cZRqOH/XnJFng2HEvUIwWOj2/5hfpT+/GPrmTD7PuIGQ12J4Dx3O8mBuGz6e3NcSb5j8370ZqKxPZXv0LflkAAAA="}];
+  var MI={"WooCommerce": ["Сайт і магазин, з якого все починається.", "Замовлення із сайту одразу летить у CRM, без копіювання руками."], "KeyCRM": ["Центр усієї зв'язки: замовлення, клієнти, залишки, чати.", "Команда працює в одному вікні, а власник бачить кожне замовлення й звідки воно прийшло."], "Checkbox": ["Програмна каса: фіскальні чеки видаються самі після оплати.", "Ніхто не пробиває чеки руками й не забуває про них."], "Finmap": ["Облік грошей: надходження й витрати записуються самі.", "Наприкінці місяця картина грошей уже готова, а оплати звіряються автоматично."], "WayForPay": ["Оплата карткою на сайті з автоматичним підтвердженням у CRM.", "Клієнт платить за хвилину, менеджер не перевіряє виписку."], "Нова пошта": ["Накладні створюються із замовлення, статус посилки видно в CRM.", "Швидша відправка й менше питань «де моя посилка»."], "Укрпошта": ["Друга служба доставки в тій самій зв'язці, зокрема за кордон.", "Покупець обирає зручну доставку, а вам не потрібен окремий процес."], "Instagram": ["Головний канал продажів: діалоги потрапляють у CRM, товари позначені в дописах.", "Жодне звернення з Direct не губиться, а реклама веде до покупки."], "Meta Ads": ["Витрати й результати реклами в Instagram і Facebook забираємо через API.", "Видно, яка кампанія приводить покупців, а яка лише витрачає бюджет."], "Google Ads": ["Реклама в пошуку й товарні оголошення, зведені із замовленнями.", "Бюджет іде в запити, які закінчуються покупкою."], "GA4": ["Аналітика сайту: що люди дивляться і де йдуть.", "Зрозуміло, що виправити на сайті, щоб більше відвідувачів купували."], "Google Sheets": ["Таблиці, у яких збираються звіти й дані для пульта.", "Звіти оновлюються самі, а не збираються по пів дня."], "Apps Script": ["Двигун пульта: забирає дані із систем і запускає задачі за розкладом.", "Пульт працює без окремого сервера."], "Telegram": ["Боти й сповіщення для команди та власника.", "Про замовлення чи збій команда дізнається за секунди."], "Python": ["Скрипти для звірок, розбору файлів і нічних задач.", "Рутина на години робиться за хвилини й без помилок через втому."], "Ollama": ["Локальний запуск ШІ-моделей на вашому комп'ютері.", "ШІ працює з чутливими документами, і вони не залишають офіс."], "Open WebUI": ["Зручне вікно для роботи команди з локальним ШІ.", "Працівники користуються ШІ у звичному вигляді чату, а дані лишаються у вас."]};
+  var h=items.map(function(x,i){return '<button type="button" class="it" data-i="'+i+'">'+(x.p?'<i class="lg"><svg viewBox="0 0 24 24" fill="'+x.c+'"><path d="'+x.p+'"/></svg></i>':'<i class="lg"><img src="'+x.u+'" alt="" width="38" height="38"></i>')+x.n+'</button>'}).join('');
+  var mq=$('#marq'), box=mq.parentNode, info=$('#minfo'); mq.innerHTML=h+h;
+  $$('.it',mq).forEach(function(b,k){if(k>=items.length){b.tabIndex=-1;b.setAttribute('aria-hidden','true')}});
+  function close(){info.hidden=true;box.classList.remove('hold');$$('.it.sel',mq).forEach(function(b){b.classList.remove('sel')})}
+  mq.addEventListener('click',function(e){var b=e.target.closest('.it');if(!b)return;var x=items[+b.dataset.i],m=MI[x.n]||['',''];
+    if(b.classList.contains('sel')){close();return}
+    close();b.classList.add('sel');box.classList.add('hold');
+    info.innerHTML='<b></b><span></span><span><i>Що це дає: </i></span><button type="button" class="xbtn" aria-label="Закрити">×</button>';
+    info.children[0].textContent=x.n;info.children[1].textContent=m[0];info.children[2].appendChild(document.createTextNode(m[1]));info.hidden=false;
+    info.lastChild.addEventListener('click',close)});
+})();
+
+/* ---------- поява й «розшифрування» заголовків ---------- */
+(function(){
+  var abc='АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЮЯ01<>/#';
+  function scramble(el){
+    if(RM||el._s) return; el._s=1; var txt=el.textContent, f=0, total=26;
+    el.setAttribute('aria-label',txt);
+    (function step(){var out='',n=Math.floor(txt.length*f/total);
+      for(var i=0;i<txt.length;i++){var ch=txt[i];out+= i<n||ch===' ' ? ch : abc[(Math.random()*abc.length)|0]}
+      el.textContent=out; if(f++<total) requestAnimationFrame(step); else el.textContent=txt})();
+  }
+  if(!('IntersectionObserver' in window)){$$('.rv').forEach(function(e){e.classList.add('in')});return}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');var h=$('[data-scr]',e.target);if(h)scramble(h);io.unobserve(e.target)}})},{threshold:.12});
+  $$('.rv').forEach(function(e,i){e.style.transitionDelay=(i%3*70)+'ms';io.observe(e)});
+})();
+
+/* ---------- жива схема ---------- */
+(function(){
+  var stage=$('#stage'), svg=$('#wires'), log=$('#log'), rec=$('#receipt'), btn=$('#run'), stepb=$('#stepb'), info=$('#info'), NS='http://www.w3.org/2000/svg';
+  var E=[['site','pay'],['pay','crm'],['crm','prro'],['crm','fin'],['crm','np'],['crm','tg']], paths={}, token=0, speed=1, idx=0, t0=0, busy=false;
+  var S=[
+    {id:'site',log:'WooCommerce: замовлення оформлено',h:'Сайт на WooCommerce',d:'Клієнт оформлює замовлення. З цієї секунди воно рухається саме, людина не потрібна.'},
+    {id:'pay',e:'site-pay',log:'WayForPay: оплату підтверджено',h:'Оплата через WayForPay',d:'Клієнт платить карткою. Статус оплати сам потрапляє в CRM, ніхто не перевіряє виписку.'},
+    {id:'crm',e:'pay-crm',log:'KeyCRM: замовлення створено, джерело з UTM записано',h:'KeyCRM, центр зв\'язки',d:'Тут з\'являються замовлення, клієнт і реклама, з якої він прийшов. Звідси команди розходяться в усі інші системи.'},
+    {id:'prro',e:'crm-prro',log:'Checkbox: фіскальний чек видано',h:'Checkbox (ПРРО)',d:'Фіскальний чек видається автоматично й надходить клієнту. Касир його не пробиває.'},
+    {id:'fin',e:'crm-fin',log:'Finmap: надходження записано',h:'Finmap',d:'Надходження саме записується в облік грошей, з правильною категорією.'},
+    {id:'np',e:'crm-np',log:'Нова пошта: накладну створено',h:'Нова пошта',d:'Накладна створюється сама, клієнт отримує номер для відстеження.'},
+    {id:'tg',e:'crm-tg',log:'Telegram: команда отримала сповіщення',h:'Telegram',d:'Команда бачить нове замовлення за кілька секунд і одразу береться пакувати.'}
+  ];
+  var goods=[['Пуховик','4 900,00'],['Кардиган','2 350,00'],['Пальто','5 600,00'],['Жакет','3 200,00']], ord=1042;
+  function w(ms){return sleep(ms/speed)}
+  function box(id){var s=stage.getBoundingClientRect(), r=$('#n-'+id).getBoundingClientRect();return {l:r.left-s.left,r:r.right-s.left,t:r.top-s.top,b:r.bottom-s.top,cx:r.left-s.left+r.width/2,cy:r.top-s.top+r.height/2}}
+  function draw(){
+    var s=stage.getBoundingClientRect(); svg.setAttribute('viewBox','0 0 '+s.width+' '+s.height);
+    E.forEach(function(e){
+      var A=box(e[0]),B=box(e[1]),d,k=e.join('-');
+      if(A.r<B.l-6){var mx=(A.r+B.l)/2;d='M'+A.r+','+A.cy+' C'+mx+','+A.cy+' '+mx+','+B.cy+' '+B.l+','+B.cy}
+      else{var my=(A.b+B.t)/2;d='M'+A.cx+','+A.b+' C'+A.cx+','+my+' '+B.cx+','+my+' '+B.cx+','+B.t}
+      if(!paths[k]){paths[k]=document.createElementNS(NS,'path');paths[k].setAttribute('class','w');svg.appendChild(paths[k])}
+      paths[k].setAttribute('d',d);
+    });
+  }
+  draw(); addEventListener('resize',draw); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(draw); setTimeout(draw,600);
+  function say(html){var d=document.createElement('div');d.innerHTML=html;log.appendChild(d);while(log.children.length>9)log.removeChild(log.firstChild)}
+  function node(id,cls){var n=$('#n-'+id);n.classList.remove('on','done');if(cls)n.classList.add(cls)}
+  function show(s){info.innerHTML='<b>'+s.h+'</b><span>'+s.d+'</span>';$$('.node',stage).forEach(function(n){n.classList.toggle('sel',n.id==='n-'+s.id)})}
+  function pulse(k,my){return new Promise(function(res){
+    var p=paths[k],len=p.getTotalLength(),c=document.createElementNS(NS,'circle');c.setAttribute('r',5);c.setAttribute('class','p');svg.appendChild(c);
+    var st=performance.now(),dur=RM?1:650/speed;
+    (function f(now){var q=Math.min(1,(now-st)/dur),pt=p.getPointAtLength(len*(q*q*(3-2*q)));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);
+      if(q<1&&my===token)requestAnimationFrame(f);else{c.remove();p.classList.add('lit');res()}})(st);
+  })}
+  async function doStep(s,my){if(s.e)await pulse(s.e,my);if(my!==token)return;node(s.id,'on');show(s);say('<u>→</u> '+s.log);await w(620);if(my!==token)return;node(s.id,'done');say('<b>✓</b> '+s.log.split(':')[0]+' · готово')}
+  function reset(){
+    S.forEach(function(s){node(s.id)}); Object.keys(paths).forEach(function(k){paths[k].classList.remove('lit')});
+    rec.classList.remove('out'); log.innerHTML=''; ord+=1+Math.floor(Math.random()*3); t0=performance.now(); idx=0;
+    say('$ нове замовлення №'+ord+' на сайті');
+  }
+  function finish(){
+    var gd=goods[ord%goods.length];
+    rec.innerHTML='<span><em>ЧЕК</em><em>№ '+ord+'</em></span><span><em>'+gd[0]+'</em><em>'+gd[1]+'</em></span><span><em>Доставка НП</em><em>за тарифом</em></span><b><em>СУМА, грн</em><em>'+gd[1]+'</em></b><span><em>Checkbox</em><em>зразок</em></span>';
+    rec.classList.add('out');
+    say('$ готово за '+((performance.now()-t0)/1000).toFixed(1).replace('.',',')+' с · ручних дій: 0');
+    btn.textContent='Запустити ще раз'; stepb.textContent='Крок за кроком'; idx=0;
+  }
+  async function run(){
+    var my=++token; busy=true; btn.disabled=true; stepb.disabled=true; btn.textContent='Замовлення в дорозі…'; reset();
+    for(var i=0;i<3;i++){await doStep(S[i],my);if(my!==token)return}
+    await Promise.all(S.slice(3).map(function(s,i){return w(i*230).then(function(){return doStep(s,my)})}));
+    if(my!==token) return;
+    finish(); busy=false; btn.disabled=false; stepb.disabled=false;
+  }
+  async function step(){
+    if(busy) return; var my=++token; busy=true; stepb.disabled=true;
+    if(idx===0) reset();
+    await doStep(S[idx],my); if(my!==token) return; idx++;
+    if(idx>=S.length) finish(); else stepb.textContent='Далі: '+S[idx].h.split(',')[0].split(' (')[0]+' →';
+    busy=false; stepb.disabled=false;
+  }
+  btn.addEventListener('click',run); stepb.addEventListener('click',step); $('#c-run').addEventListener('click',function(){if(!busy)run()});
+  $('#c-speed').addEventListener('click',function(){speed=speed===1?2:speed===2?.5:1;$('#c-sp').textContent='×'+String(speed).replace('.',',')});
+  $('#c-clear').addEventListener('click',function(){log.innerHTML='';say('$ журнал очищено');rec.classList.remove('out')});
+  S.forEach(function(s){
+    var n=$('#n-'+s.id);
+    n.addEventListener('click',function(){show(s);if(!busy&&s.e&&!RM){var my=token;pulse(s.e,my).then(function(){if(my===token&&idx===0&&!n.classList.contains('done'))paths[s.e].classList.remove('lit')})}});
+    function hot(on){Object.keys(paths).forEach(function(k){if(k.split('-').indexOf(s.id)>-1)paths[k].classList.toggle('hot',on)})}
+    n.addEventListener('pointerenter',function(){hot(true)}); n.addEventListener('pointerleave',function(){hot(false)});
+    n.addEventListener('focus',function(){hot(true)}); n.addEventListener('blur',function(){hot(false)});
+  });
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();draw();run()}},{threshold:.45});io.observe(stage)}
+})();
+
+/* ---------- маленькі анімовані емблеми послуг ---------- */
+(function(){
+  $$('canvas[data-g]').forEach(function(cv){
+    var x=cv.getContext('2d'),kind=cv.dataset.g,W,H,d,hov=0,ht=0,card=cv.closest('.card');
+    card.addEventListener('pointerenter',function(){ht=1});card.addEventListener('pointerleave',function(){ht=0});
+    function size(){d=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*d;cv.height=H*d;x.setTransform(d,0,0,d,0,0)}
+    size();addEventListener('resize',size);
+    var pts=[];for(var i=0;i<22;i++)pts.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0016,vy:(Math.random()-.5)*.0016});
+    function f(now){var t=now/1000;hov+=(ht-hov)*.08;x.clearRect(0,0,W,H);var ice='rgba(111,227,255,',sig='rgba(255,138,31,';
+      if(kind==='flow'){
+        for(var r=0;r<4;r++){var y=H*(.2+r*.2);x.strokeStyle=ice+'.22)';x.lineWidth=1;x.beginPath();
+          for(var px=0;px<=W;px+=6){var yy=y+Math.sin(px*.02+t*(1+hov)+r)*8*(1+hov*.6);px?x.lineTo(px,yy):x.moveTo(px,yy)}x.stroke();
+          var q=((t*(.16+r*.05)*(1+hov*1.5)+r*.27)%1)*W,qy=y+Math.sin(q*.02+t*(1+hov)+r)*8*(1+hov*.6);
+          x.fillStyle=sig+'1)';x.shadowColor='#ff8a1f';x.shadowBlur=14;x.beginPath();x.arc(q,qy,3.2,0,7);x.fill();x.shadowBlur=0}
+      }else if(kind==='net'){
+        pts.forEach(function(p){p.x+=p.vx*(1+hov*3);p.y+=p.vy*(1+hov*3);if(p.x<0||p.x>1)p.vx*=-1;if(p.y<0||p.y>1)p.vy*=-1});
+        for(var a=0;a<pts.length;a++)for(var b=a+1;b<pts.length;b++){var dx=(pts[a].x-pts[b].x)*W,dy=(pts[a].y-pts[b].y)*H,ds=Math.sqrt(dx*dx+dy*dy),lim=70+hov*40;
+          if(ds<lim){x.strokeStyle=ice+(.5*(1-ds/lim))+')';x.beginPath();x.moveTo(pts[a].x*W,pts[a].y*H);x.lineTo(pts[b].x*W,pts[b].y*H);x.stroke()}}
+        pts.forEach(function(p,i){x.fillStyle=i%5?ice+'.9)':sig+'1)';x.beginPath();x.arc(p.x*W,p.y*H,i%5?1.8:3,0,7);x.fill()});
+      }else{
+        var hz=H*.3,vp=W/2;x.strokeStyle=ice+'.35)';x.lineWidth=1;
+        for(var i2=-12;i2<=12;i2++){x.beginPath();x.moveTo(vp+i2*6,hz);x.lineTo(vp+i2*W*.16,H);x.stroke()}
+        for(var j=0;j<9;j++){var z=((j+(t*(.5+hov))%1)/9),yy2=hz+(H-hz)*z*z;x.strokeStyle=ice+(.1+.4*z)+')';x.beginPath();x.moveTo(0,yy2);x.lineTo(W,yy2);x.stroke()}
+        var g=x.createRadialGradient(vp,hz,2,vp,hz,60+hov*20);g.addColorStop(0,sig+'.95)');g.addColorStop(1,sig+'0)');x.fillStyle=g;x.beginPath();x.arc(vp,hz,60+hov*20,Math.PI,0);x.fill();
+      }
+      if(!RM)requestAnimationFrame(f)}
+    requestAnimationFrame(f);
+  });
+})();
+
+/* ---------- демо-консультант (сценарій, ліміт 10 питань; готовий до підключення живої моделі через window.CONSULTANT_URL) ---------- */
+(function(){
+  var chat=$('#chat'), chips=$('#chips'), leftEl=$('#left'), inp=$('#chatin'), busy=false, left=10, hist=[], sid=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  var CTA=' Опишіть задачу в кількох реченнях на Freelancehunt, і ми скажемо, з чого почати.';
+  var QA=[
+    {q:'Що таке ШІ-аудит?',k:['аудит','з чого поч','перший крок','консультац','не знаю'],
+     a:'ШІ-аудит це перший крок: ми глибоко розбираємо, як у вас ходять замовлення, гроші, товар і звіти, і показуємо, де автоматизація чи ШІ дадуть результат. Ви отримуєте карту процесів, місця втрат і план із порядком та цінами. Аудит коштує 100 євро. Заявку можна залишити кнопкою «Залишити заявку на аудит» на цій сторінці.'},
+    {q:'З чого почати автоматизацію?',k:['автоматиз','магазин','crm','keycrm','woocommerce','замовлен','чек','checkbox','finmap','пошт','ттн','wayforpay','зв\'яз'],
+     a:'Зазвичай з рівня 1: зв\'язуємо системи, якими ви вже користуєтесь. Замовлення із сайту саме потрапляє в CRM, Checkbox видає чек, надходження записується у Finmap, створюється накладна Нової пошти, команда отримує сповіщення в Telegram. Це найшвидше повертає час і не потребує ШІ.'},
+    {q:'Що таке Пульт бізнесу?',k:['пульс','пульт','дашборд','телефон','звіт','аналітик','контрол','менеджер','мфс','звірк'],
+     a:'Це пульт Вашого бізнесу в телефоні. Продажі, реклама, залишки, гроші й нічні задачі зведені на один екран, а система сама підсвічує, де потрібна увага. Звіти автоматично звіряються з CRM, робота менеджерів перевіряється без ручного контролю. Ми зробили його для власного магазину й користуємося щодня.'},
+    {q:'Скільки це коштує?',k:['цін','кошт','скільки','варт','прайс','грн','євро','eur','оплат','бюджет','дорого','дешев'],
+     a:'Ціна залежить від задачі, тому точну суму називаємо після короткого опису й до початку роботи. До кожного проєкту ми підходимо серйозно й комплексно: розбираємось у ваших процесах, тестуємо на реальних даних і доводимо до результату. Тому наші послуги стартують від 400 євро. Перший крок, ШІ-аудит бізнесу, коштує 100 євро.'},
+    {q:'Навіщо мені ШІ-агент?',k:['ші','шi','агент','штучн','помічник','локальн','ollama','безпек','документ','хмар','ai'],
+     a:'ШІ-агент забирає задачі, де раніше потрібна була людина: розібрати файли, знайти помилки, підготувати відповіді клієнтам, звести звіт. Він може працювати локально на вашому комп\'ютері, тоді документи нікуди не передаються. Назовні нічого не йде без підтвердження людини.'},
+    {q:'Як ви працюєте і які терміни?',k:['як ви','працю','термін','довго','швидко','коли','гаранті','правк','підтрим','хто робит','люди'],
+     a:'Спершу уточнюємо задачу й критерії, за якими ви приймете роботу. Основну роботу виконує ШІ під керівництвом людини, тому виходить швидко, а результат перед здачею перевіряється на реальних даних. Термін називаємо разом із ціною. Після запуску можемо взяти систему на підтримку.'},
+    {q:'Зробите сайт, як цей?',k:['сайт','лендинг','дизайн','візитк','сторінк','магазин на'],
+     a:'Так. Цей сайт зібрано без шаблонів і конструкторів: 3D-фон, жива схема й демо написані під нього. Так само зробимо лендинг, магазин на WooCommerce або внутрішній пульт для команди.'}
+  ];
+  var OFF='Я консультую лише щодо послуг студії: автоматизація магазину, ШІ-агенти, пульт бізнесу й ШІ-аудит. Розкажіть, що у вашому бізнесі досі робиться руками, і я підкажу, з якого рівня почати.';
+  function add(cls,txt){var d=document.createElement('div');d.className='msg '+cls;d.textContent=txt||'';chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
+  function pick(v){var low=v.toLowerCase(),best=null,score=0;QA.forEach(function(x){var s=x.k.filter(function(k){return low.indexOf(k)>-1}).length;if(s>score){score=s;best=x}});return best?best.a+(left%3===0?CTA:''):OFF}
+  async function live(v){
+    var r=await fetch(window.CONSULTANT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({sid:sid,messages:hist.concat([{role:'user',content:v}])})});
+    if(!r.ok) throw 0; var j=await r.json(); if(!j.reply) throw 0; return String(j.reply).slice(0,1500);
+  }
+  async function ask(q,canned){
+    if(busy||left<=0)return;busy=true;add('u',q);left--;leftEl.textContent=left;
+    var t=add('a t');t.innerHTML='<i></i><i></i><i></i>';var a;
+    try{a=window.CONSULTANT_URL?await live(q):canned||pick(q)}catch(e){a=canned||pick(q)}
+    await sleep(600);t.remove();hist.push({role:'user',content:q},{role:'assistant',content:a});
+    var m=add('a');for(var i=1;i<=a.length;i+=2){m.textContent=a.slice(0,i+1);chat.scrollTop=chat.scrollHeight;await sleep(11)}
+    m.textContent=a;
+    if(left<=0){add('a','Це було останнє питання демо. Далі краще говорити предметно: опишіть свою задачу на Freelancehunt, і ми відповімо особисто.');inp.disabled=true;inp.placeholder='Ліміт демо вичерпано';$$('button',chips).forEach(function(b){b.disabled=true})}
+    busy=false;
+  }
+  QA.forEach(function(x){var b=document.createElement('button');b.type='button';b.textContent=x.q;b.addEventListener('click',function(){ask(x.q,x.a)});chips.appendChild(b)});
+  $('#chatf').addEventListener('submit',function(e){e.preventDefault();var v=inp.value.trim();if(!v||busy||left<=0)return;inp.value='';ask(v)});
+  add('a','Вітаю. Я демо-консультант студії. Розкажіть, що у вашому бізнесі забирає найбільше часу, або оберіть питання нижче.');
+})();
+
+/* ---------- розбір файла просто в браузері ---------- */
+(function(){
+  var drop=$('#drop'), fin=$('#file'), out=$('#fa'), CDN='https://cdnjs.cloudflare.com/ajax/libs/', libs={};
+  function lib(u){return libs[u]||(libs[u]=new Promise(function(res,rej){var s=document.createElement('script');s.src=CDN+u;s.onload=res;s.onerror=function(){delete libs[u];rej('net')};document.head.appendChild(s)}))}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function fmt(n){var a=Math.abs(n)>=100?Math.round(n):Math.round(n*100)/100;return String(a).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+  function num(v){if(typeof v==='number')return isFinite(v)?v:null;var s=String(v).replace(/[\s ]/g,'').replace(/(грн|uah|₴|€|\$|eur|usd)\.?$/i,'').replace(',','.');return /^-?\d+(\.\d+)?$/.test(s)?parseFloat(s):null}
+  function parseCSV(t){
+    var first=t.split(/\r?\n/)[0], d=[';',',','\t'].sort(function(a,b){return first.split(b).length-first.split(a).length})[0], rows=[], row=[], cur='', q=false;
+    for(var i=0;i<t.length;i++){var c=t[i];
+      if(q){if(c==='"'){if(t[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}
+      else if(c==='"')q=true; else if(c===d){row.push(cur);cur=''} else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur=''} else if(c!=='\r')cur+=c}
+    if(cur!==''||row.length){row.push(cur);rows.push(row)} return rows;
+  }
+  function render(name,meta,kpis,items){
+    out.innerHTML='<div class="fa-h"><b>'+esc(name)+'</b><span>'+esc(meta)+'</span></div><div class="fa-k">'+kpis.map(function(k){return '<div><small>'+esc(k[0])+'</small><b>'+esc(k[1])+'</b></div>'}).join('')+'</div><ul class="fa-l">'+items.map(function(x,i){return '<li class="'+x[0]+'" style="animation-delay:'+(i*70)+'ms">'+esc(x[1])+'</li>'}).join('')+'</ul>';
+  }
+  function table(name,rows,meta){
+    rows=rows.filter(function(r){return r&&r.some(function(c){return String(c==null?'':c).trim()!==''})});
+    if(rows.length<2){render(name,meta,[['Рядків',String(rows.length)]],[['e','У файлі майже немає даних: знайдено менше двох заповнених рядків.']]);return}
+    var head=rows[0].map(function(h,i){return String(h==null?'':h).trim()||'Колонка '+(i+1)}), body=rows.slice(1), nc=head.length, it=[], empty=0, issues=0;
+    var cols=head.map(function(h,ci){
+      var vals=body.map(function(r){return r[ci]==null?'':r[ci]}), ne=vals.filter(function(v){return String(v).trim()!==''}), nums=ne.map(num), ok=nums.filter(function(n){return n!==null});
+      return {h:h,vals:vals,ne:ne,em:vals.length-ne.length,nums:ok,isNum:ne.length>0&&ok.length/ne.length>=.7,bad:ne.length-ok.length,uniq:new Set(ne.map(String)).size};
+    });
+    cols.forEach(function(c){empty+=c.em});
+    var money=cols.filter(function(c){return c.isNum&&/сум|виторг|оплат|total|amount|revenue|вартіст|дохід/i.test(c.h)})[0]||cols.filter(function(c){return c.isNum&&/цін|price/i.test(c.h)})[0];
+    var seen={},dup=0;body.forEach(function(r){var k=JSON.stringify(r);if(seen[k])dup++;seen[k]=1});
+    if(money){var s=money.nums.reduce(function(a,b){return a+b},0);it.push(['g','«'+money.h+'»: разом '+fmt(s)+', у середньому '+fmt(s/money.nums.length)+' на рядок, найбільше '+fmt(Math.max.apply(null,money.nums))+'.'])}
+    var cats=cols.filter(function(c){return !c.isNum&&c.uniq>=2&&c.uniq<=12&&c.ne.length>=body.length*.6&&!/дата|date|час|time/i.test(c.h)&&!/^\d{1,4}[.\/-]\d{1,2}[.\/-]\d{1,4}/.test(String(c.ne[0]))}),cat=cats.filter(function(c){return /менедж|товар|катег|статус|канал|джерел|клієнт|назв|product|manager|status|category/i.test(c.h)})[0]||cats[0];
+    if(cat){var m={};body.forEach(function(r,ri){var k=String(cat.vals[ri]).trim();if(!k)return;var v=money?num(money.vals[ri]):1;m[k]=(m[k]||0)+(v===null?0:v)});
+      var top=Object.keys(m).sort(function(a,b){return m[b]-m[a]}).slice(0,3).map(function(k){return k+' ('+fmt(m[k])+')'});
+      it.push(['','Лідери за «'+cat.h+'»'+(money?' за сумою':' за кількістю')+': '+top.join(', ')+'.'])}
+    if(dup){issues++;it.push(['e','Повністю однакових рядків: '+dup+'. Схоже на дублі, які завищують підсумки.'])}
+    cols.forEach(function(c){
+      if(c.em&&c.em<body.length){issues++;it.push(['e','«'+c.h+'»: порожніх клітинок '+c.em+' із '+body.length+'.'])}
+      if(c.isNum&&c.bad){issues++;it.push(['e','«'+c.h+'»: '+c.bad+' значень не є числами, тож у формули вони не потраплять.'])}
+      if(c.isNum&&/цін|сум|кільк|залиш|price|qty|amount|total|шт/i.test(c.h)){var neg=c.nums.filter(function(n){return n<0}).length;if(neg){issues++;it.push(['e','«'+c.h+'»: від\'ємних значень '+neg+'. Перевірте, чи це повернення, чи помилка.'])}}
+      if(c.isNum&&c.nums.length>=8){var mean=c.nums.reduce(function(a,b){return a+b},0)/c.nums.length,sd=Math.sqrt(c.nums.reduce(function(a,b){return a+(b-mean)*(b-mean)},0)/c.nums.length),o=c.nums.filter(function(n){return sd>0&&Math.abs(n-mean)>2.5*sd});
+        if(o.length&&!/№|номер|id|код|артикул|кільк|qty|шт/i.test(c.h)){issues++;it.push(['e','«'+c.h+'»: підозріло великі чи малі значення ('+o.slice(0,3).map(fmt).join(', ')+'). Можлива помилка введення.'])}}
+      if(/артикул|sku|№|номер|^id|код/i.test(c.h)&&c.uniq<c.ne.length){issues++;it.push(['e','«'+c.h+'»: повторів '+(c.ne.length-c.uniq)+', хоча значення мали б бути унікальними.'])}
+    });
+    if(!issues)it.push(['g','Явних помилок у даних не знайдено.']);
+    render(name,meta,[['Рядків',fmt(body.length)],['Колонок',String(nc)],['Порожніх клітинок',fmt(empty)],['Зауважень',String(issues)]],it);
+  }
+  function text(name,t,meta,pages){
+    t=t||'';var words=(t.match(/[\p{L}\p{N}]+/gu)||[]).length, it=[], issues=0;
+    if(words<5){render(name,meta,[['Слів',String(words)]],[['e','Тексту майже немає. Схоже, це скан або зображення: для нього потрібне розпізнавання, його робимо в проєкті.']]);return}
+    var money=[],re=/(\d[\d\s ]*(?:[.,]\d+)?)\s?(грн|₴|uah|€|eur|євро|\$|usd|дол)/gi,m;while((m=re.exec(t))){var v=num(m[1]);if(v!==null)money.push(v)}
+    var dates=t.match(/\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}\b/g)||[], mails=t.match(/[\w.+-]+@[\w-]+\.[\w.-]+/g)||[], phones=t.match(/(?:\+?38)?[\s(]*0\d{2}[)\s-]*\d{3}[\s-]?\d{2}[\s-]?\d{2}/g)||[];
+    if(money.length)it.push(['g','Знайдено сум: '+money.length+'. Найбільша '+fmt(Math.max.apply(null,money))+', разом '+fmt(money.reduce(function(a,b){return a+b},0))+'.']);
+    if(dates.length)it.push(['','Дат у тексті: '+dates.length+' (наприклад, '+dates.slice(0,3).join(', ')+').']);
+    if(mails.length||phones.length)it.push(['','Контактів: пошт '+new Set(mails).size+', телефонів '+new Set(phones.map(function(p){return p.replace(/\D/g,'')})).size+'.']);
+    var seps=new Set(dates.map(function(d){return d.replace(/\d/g,'')[0]}));if(seps.size>1){issues++;it.push(['e','Дати записано в різних форматах. У договорах і звітах це часте джерело плутанини.'])}
+    var ph=t.match(/_{4,}|\?{3,}|\bTODO\b|\bXXX\b|\[[^\]]{0,25}\]/g)||[];if(ph.length){issues++;it.push(['e','Незаповнених місць або заготовок: '+ph.length+' (наприклад, «'+ph[0].slice(0,20)+'»).'])}
+    var ds=(t.match(/[^\s] {2,}[^\s]/g)||[]).length;if(ds>3){issues++;it.push(['e','Подвійних пробілів: '+ds+'. Дрібниця, але виглядає неохайно в документах для клієнтів.'])}
+    if(!issues)it.push(['g','Явних помилок оформлення не знайдено.']);
+    var k=[['Слів',fmt(words)],['Сум',String(money.length)],['Дат',String(dates.length)],['Зауважень',String(issues)]];if(pages)k[1]=['Сторінок',String(pages)];
+    render(name,meta,k,it);
+  }
+  async function handle(f){
+    var ext=(f.name.split('.').pop()||'').toLowerCase(), meta=(f.size>1048576?fmt(f.size/1048576)+' МБ':fmt(Math.max(1,f.size/1024))+' КБ');
+    out.innerHTML='<div class="fa-h"><b>'+esc(f.name)+'</b><span>розбираю…</span></div>';
+    try{
+      if(f.size>15728640){render(f.name,meta,[['Розмір',meta]],[['e','Файл завеликий для демо в браузері (понад 15 МБ). У проєкті такі файли розбираємо без обмежень.']]);return}
+      if(ext==='csv'||ext==='tsv'){table(f.name,parseCSV(await f.text()),meta)}
+      else if(ext==='xlsx'||ext==='xls'||ext==='ods'){await lib('xlsx/0.18.5/xlsx.full.min.js');var wb=XLSX.read(await f.arrayBuffer(),{type:'array'}),sn=wb.SheetNames[0];table(f.name,XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''}),meta+' · аркуш «'+sn+'»'+(wb.SheetNames.length>1?' з '+wb.SheetNames.length:''))}
+      else if(ext==='docx'){await lib('mammoth/1.6.0/mammoth.browser.min.js');var r=await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});text(f.name,r.value,meta)}
+      else if(ext==='pdf'){await lib('pdf.js/3.11.174/pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc=CDN+'pdf.js/3.11.174/pdf.worker.min.js';
+        var pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,tx='';for(var p=1;p<=Math.min(pdf.numPages,40);p++){var c=await(await pdf.getPage(p)).getTextContent();tx+=c.items.map(function(i){return i.str}).join(' ')+'\n'}
+        text(f.name,tx,meta,pdf.numPages)}
+      else if(ext==='txt'||ext==='md'||ext==='json'){text(f.name,await f.text(),meta)}
+      else render(f.name,meta,[['Формат','.'+ext]],[['','Цей формат демо в браузері не читає. У проєкті розбираємо будь-які файли: виписки банку, вивантаження з CRM, скани, фото накладних.']]);
+    }catch(e){render(f.name,meta,[['Формат','.'+ext]],[['e',e==='net'?'Не вдалося завантажити модуль розбору. Перевірте інтернет і спробуйте ще раз.':'Не вдалося прочитати файл у браузері. Можливо, він захищений паролем або пошкоджений.']])}
+  }
+  fin.addEventListener('change',function(){if(fin.files[0])handle(fin.files[0]);fin.value=''});
+  ['dragenter','dragover'].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.remove('over')})});
+  drop.addEventListener('drop',function(e){var f=e.dataTransfer&&e.dataTransfer.files[0];if(f)handle(f)});
+  var sample='№ замовлення;Дата;Товар;Менеджер;Кількість;Сума, грн\n2101;17.11.2026;Пуховик;Олена;1;4900\n2102;17.11.2026;Кардиган;Ігор;2;4700\n2103;17.11.2026;Пальто;Олена;1;5600\n2104;18.11.2026;Жакет;Марта;1;3200\n2104;18.11.2026;Жакет;Марта;1;3200\n2105;18.11.2026;Пуховик;Ігор;1;\n2106;18.11.2026;Кардиган;Олена;-1;2350\n2107;19.11.2026;Пальто;Марта;1;56000\n2108;19.11.2026;Пуховик;Олена;1;4900\n2109;19.11.2026;Жакет;Ігор;1;3200\n2110;20.11.2026;Кардиган;Марта;1;2350\n2111;20.11.2026;Пуховик;Олена;2;9800';
+  table('приклад_замовлення.csv',parseCSV(sample),'приклад із навмисними помилками · киньте свій файл');
+})();
+
+/* ---------- звірка звіту з CRM на пульті ---------- */
+(function(){
+  var base=[[3051,4900,4900],[3052,2350,2350],[3053,5600,5600],[3054,3200,2900],[3055,4700,4700],[3056,4900,null],[3057,2350,2350],[3058,3200,3200]];
+  var tb=$('#tbl tbody'), scan=$('#scan'), tile=$('#ptile'), stat=$('#pstat'), bar=$('#pbar'), list=$('#plist'), toast=$('#toast'), cdEl=$('#pcd'), busy=false, cd=30, seen=false, round=0;
+  function f(n){return n===null?'немає':String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+  function data(){return base.map(function(r){return [r[0]+round*8,r[1],r[2]]})}
+  function render(rows){tb.innerHTML=rows.map(function(r){return '<tr><td>№ '+r[0]+'</td><td class="num">'+f(r[1])+'</td><td class="num">'+f(r[2])+'</td><td class="st">·</td></tr>'}).join('')}
+  render(data());
+  async function go(){
+    if(busy)return;busy=true;scan.disabled=true;var rows=data();render(rows);var tr=$$('tr',tb),bad=[],sa=0,sb=0;
+    tile.className='tile';stat.textContent='Звіряю…';list.innerHTML='';toast.classList.remove('on');
+    for(var i=0;i<rows.length;i++){
+      tr[i].classList.add('scan');await sleep(300);tr[i].classList.remove('scan');var r=rows[i],ok=r[1]===r[2];
+      sa++;if(r[2]!==null)sb++;$('#pa').textContent=sa;$('#pb2').textContent=sb;bar.style.width=((i+1)/rows.length*100)+'%';
+      tr[i].classList.add(ok?'good':'bad');$('.st',tr[i]).textContent=ok?'збігається':r[2]===null?'немає в CRM':'різниця '+f(r[1]-r[2])+' грн';
+      if(!ok)bad.push('№ '+r[0]+': '+(r[2]===null?'є у звіті, немає в CRM':'сума відрізняється на '+f(r[1]-r[2])+' грн'));
+    }
+    tile.className='tile '+(bad.length?'warn':'ok');stat.textContent=bad.length?'Розбіжностей: '+bad.length:'Усе збігається';
+    list.innerHTML=bad.map(function(b){return '<li>'+b+'</li>'}).join('');$('#ptime').textContent='щойно';
+    if(bad.length){$('#toastt').textContent='Звірка завершена. Розбіжностей: '+bad.length+'. Деталі нижче.';toast.classList.add('on');setTimeout(function(){toast.classList.remove('on')},4200)}
+    round++;cd=30;busy=false;scan.disabled=false;
+  }
+  scan.addEventListener('click',go);
+  setInterval(function(){if(!seen||busy)return;cd--;if(cd<=0){cd=30;go()}cdEl.textContent=cd},1000);
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){seen=es[0].isIntersecting;if(seen&&!round)go()},{threshold:.3});io.observe($('#tbl'))}else{seen=true}
+})();
+
+/* ---------- натискні картки: як це пов'язано із системою і що дає ---------- */
+(function(){
+  $$('[data-more]').forEach(function(el){
+    var p=el.getAttribute('data-more').split('|'), m=document.createElement('div'), pl=document.createElement('i');
+    m.className='more'; m.innerHTML='<div><p><b>У системі</b>'+p[0]+'</p>'+(p[1]?'<p><b>Що це дає</b>'+p[1]+'</p>':'')+'</div>';
+    pl.className='pl'; pl.textContent='+'; pl.setAttribute('aria-hidden','true');
+    el.appendChild(pl); el.appendChild(m); el.classList.add('x'); el.tabIndex=0; el.setAttribute('role','button'); el.setAttribute('aria-expanded','false');
+    function tg(){var o=el.classList.toggle('open');el.setAttribute('aria-expanded',o)}
+    el.addEventListener('click',function(e){if(e.target.closest('a,button'))return;tg()});
+    el.addEventListener('keydown',function(e){if(e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();tg()}});
+  });
+})();
+
+/* ---------- Пульт Вашого бізнесу: приклад екрана з вибором показників ---------- */
+(function(){
+  var grid=$('#pgrid'); if(!grid) return;
+  var tabsEl=$('#ptabs'), chips=$('#pchips'), per='d', cur='main', off={}, mine=[], logEl=$('#plog');
+  var PM={d:1,w:6.4,m:27}, PN={d:'сьогодні',w:'за тиждень',m:'за місяць'};
+  function f(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+  // типи: n — число, що залежить від періоду; v — значення як є; s — стан; bars; list
+  var T={
+    main:{n:'Головне',t:[
+      {id:'rev',l:'Виручка',n:48600,u:' ₴',d:'+8%',sp:1},{id:'ord',l:'Замовлень',n:19,d:'+3',sp:1},{id:'avg',l:'Середній чек',v:'2 558 ₴',d:'+4%'},{id:'paid',l:'Оплачено',v:'84%',d:'як учора',dn:2},
+      {id:'att',l:'Потребує уваги',s:'warn',v:'2 замовлення без накладної',w:2},{id:'wk',l:'Головне за період',w:2,list:[['Реклама в Instagram','окупається','g'],['Повернень','менше, ніж торік','g'],['Залишки','3 товари закінчуються','r']]}]},
+    sales:{n:'Продажі',t:[
+      {id:'new',l:'Оформлено',n:23,d:'+5',sp:1},{id:'pd',l:'Оплачено',n:19,d:'+3',sp:1},{id:'ex',l:'Обміни',n:1,d:'у нормі',dn:2},{id:'cn',l:'Скасовано',v:'6%',d:'−2%'},
+      {id:'src',l:'Звідки замовлення',w:2,bars:[['Instagram',62],['Сайт',24],['Telegram',9],['Інше',5]]},{id:'top',l:'Топ товарів',w:2,list:[['Пуховик','12 шт'],['Костюм','9 шт'],['Пальто','7 шт']]},
+      {id:'dow',l:'Дні тижня: коли купують',w:4,bars:[['Пн',58],['Вт',64],['Ср',71],['Чт',66],['Пт',49],['Сб',83],['Нд',100]]}]},
+    ads:{n:'Реклама',t:[
+      {id:'sp',l:'Витрати',n:3900,u:' ₴',d:'за планом',dn:2,sp:1},{id:'roas',l:'Виручка на 1 ₴ реклами',v:'7,4 ₴',d:'+0,6'},{id:'cpo',l:'Ціна замовлення',v:'205 ₴',d:'−12 ₴'},{id:'clk',l:'Переходів',n:1240,d:'+9%',sp:1},
+      {id:'cmp',l:'Кампанії',w:2,list:[['Нова колекція','окупається','g'],['Розпродаж залишків','окупається','g'],['Охоплення','без продажів','r']]},{id:'utm',l:'Яка реклама привела покупців',w:2,bars:[['Instagram',54],['Google',28],['Розсилка',12],['Блогери',6]]}]},
+    money:{n:'Гроші',t:[
+      {id:'in',l:'Надійшло',n:46200,u:' ₴',d:'+6%',sp:1},{id:'out',l:'Витрачено',n:31800,u:' ₴',d:'+2%',dn:2},{id:'pr',l:'Прибуток грошима',n:14400,u:' ₴',d:'+11%',s:'ok'},{id:'fis',l:'Чеки',s:'ok',v:'Усі видано'},
+      {id:'where',l:'Куди пішли гроші',w:4,bars:[['Виробництво',46],['Реклама',21],['Зарплата',19],['Доставка',8],['Інше',6]]}]},
+    stock:{n:'Склад',badge:3,t:[
+      {id:'low',l:'Закінчуються',s:'warn',v:'3 товари'},{id:'zero',l:'Немає в наявності',v:'5 позицій',d:'переглянути',dn:2},{id:'diff',l:'Сайт і CRM',s:'ok',v:'Залишки збігаються'},{id:'sew',l:'У виробництві',v:'14 замовлень',d:'за графіком',dn:2},
+      {id:'lowl',l:'Що дозамовити',w:4,list:[['Пуховик, розмір M','лишилось 2','r'],['Костюм, розмір S','лишилось 3','r'],['Пальто, розмір L','лишилось 4','r']]}]},
+    team:{n:'Команда',badge:1,t:[
+      {id:'rec',l:'Звіт менеджерів і CRM',s:'warn',v:'1 розбіжність',w:2},{id:'mfs',l:'База для бонусів',s:'ok',v:'Пораховано автоматично',w:2},
+      {id:'mgr',l:'По менеджерах: виконання плану',w:2,bars:[['Олена',92],['Ірина',81],['Марта',74]]},{id:'spd',l:'Швидкість відповіді клієнту',w:2,list:[['Удень','до 5 хв','g'],['Уночі, ШІ-менеджер','до 1 хв','g'],['Без відповіді','0 діалогів','g']]}]},
+    auto:{n:'Автоматика',t:[
+      {id:'night',l:'Нічні задачі',s:'ok',v:'Виконано всі'},{id:'nm',l:'Нічний ШІ-менеджер',v:'17 діалогів',d:'2 передано людям',dn:2},{id:'pay',l:'Звірка оплат',s:'ok',v:'Усі знайдено'},{id:'nxt',l:'Наступний запуск',v:'о 23:45',d:'за розкладом',dn:2},
+      {id:'jr',l:'Журнал',w:4,list:[['Залишки сайт і CRM звірено','07:00','g'],['Звіт менеджерів звірено з CRM','08:05','g'],['Рекламні витрати оновлено','кожні 10 хв']]}]}
+  };
+  function spark(seed){var h='';for(var i=0;i<12;i++){var v=30+((Math.sin(seed*3.1+i*1.7)+1)*.5)*70;h+='<i style="height:'+v.toFixed(0)+'%"></i>'}return '<div class="sp">'+h+'</div>'}
+  function tile(x,i){
+    var c='pt'+(x.w?' w'+x.w:'')+(x.s?' '+x.s:''), h='<small>'+x.l+'</small>';
+    if(x.n!=null) h+='<b>'+f(x.n*PM[per])+(x.u||'')+'</b>'; else if(x.v) h+='<b>'+x.v+'</b>';
+    if(x.d) h+='<em class="'+(x.dn===2?'nt':x.dn?'dn':'')+'">'+x.d+'</em>';
+    if(x.sp) h+=spark(i+PM[per]);
+    if(x.bars) h+='<div class="br">'+x.bars.map(function(b){return '<div>'+b[0]+'<i><u style="width:'+b[1]+'%"></u></i><span>'+b[1]+'%</span></div>'}).join('')+'</div>';
+    if(x.list) h+='<ul class="ls">'+x.list.map(function(b){return '<li>'+b[0]+'<span class="'+(b[2]||'')+'">'+b[1]+'</span></li>'}).join('')+'</ul>';
+    return '<div class="'+c+'" style="animation-delay:'+(i*45)+'ms">'+h+'</div>';
+  }
+  function draw(){
+    var t=T[cur].t.filter(function(x){return !off[x.id]}), h=t.map(tile).join('');
+    if(cur==='main') h+=mine.map(function(m,i){return '<div class="pt w2" style="border-color:rgba(255,138,31,.6)"><small>'+m+'</small><b style="font-size:15px">Підключимо з ваших систем</b><em class="nt">ваш показник</em></div>'}).join('');
+    grid.innerHTML=h||'<div class="pt w4"><small>порожньо</small><b style="font-size:15px">Увімкніть показники праворуч</b></div>';
+    chips.innerHTML='';
+    T[cur].t.forEach(function(x){var b=document.createElement('button');b.type='button';b.textContent=x.l;b.className=off[x.id]?'':'on';b.setAttribute('aria-pressed',!off[x.id]);b.addEventListener('click',function(){off[x.id]=!off[x.id];draw()});chips.appendChild(b)});
+    if(cur==='main') mine.forEach(function(m){var b=document.createElement('button');b.type='button';b.textContent=m;b.className='mine';b.addEventListener('click',function(){mine.splice(mine.indexOf(m),1);draw()});chips.appendChild(b)});
+  }
+  Object.keys(T).forEach(function(k){var b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.innerHTML=T[k].n+(T[k].badge?'<u>'+T[k].badge+'</u>':'');b.className=k===cur?'on':'';
+    b.addEventListener('click',function(){cur=k;$$('button',tabsEl).forEach(function(x){x.classList.toggle('on',x===b)});draw()});tabsEl.appendChild(b)});
+  $$('#pper button').forEach(function(b){b.addEventListener('click',function(){per=b.dataset.p;$$('#pper button').forEach(function(x){x.classList.toggle('on',x===b)});draw()})});
+  var IDEAS=['Маржа по товарах','Повторні покупки','Завантаження цеху','Відгуки клієнтів','Борги постачальникам','Час доставки','Залишок на рахунках','Повернення за причинами'], ii=0;
+  $('#padd').addEventListener('click',function(){
+    if(mine.length>=4){logEl.innerHTML='У справжньому пульті показників може бути скільки завгодно: беремо їх із CRM, обліку, реклами, складу чи ваших таблиць.';return}
+    mine.push(IDEAS[ii++%IDEAS.length]); if(cur!=='main'){cur='main';$$('button',tabsEl).forEach(function(x,i){x.classList.toggle('on',i===0)})} draw();
+    logEl.innerHTML='<b>+</b> Додано «'+mine[mine.length-1]+'». Так само підключимо будь-який показник із ваших систем.';
+  });
+  var ACT=[['Звірити звіт із CRM','Порівнюю звіт менеджерів із CRM…','Звірку завершено: 1 розбіжність, деталі у вкладці «Команда».'],['Оновити залишки','Забираю залишки з CRM на сайт…','Залишки оновлено, розбіжностей немає.'],['Звіт власнику','Збираю цифри за період…','Звіт готовий і надісланий у Telegram.'],['Запустити нічну зміну','Вмикаю ШІ-менеджера…','Нічна зміна працює. Зранку буде зведення.']], busy=false;
+  ACT.forEach(function(a){var b=document.createElement('button');b.type='button';b.textContent=a[0];b.addEventListener('click',async function(){if(busy)return;busy=true;b.classList.add('run');logEl.textContent='▶ '+a[1];await sleep(1300);logEl.innerHTML='<b>✓</b> '+a[2]+' <span style="opacity:.7">(приклад)</span>';b.classList.remove('run');busy=false});$('#pacts').appendChild(b)});
+  draw();
+})();
+
+/* ---------- уся система: вибір потоку, наближення камери ---------- */
+(function(){
+  var box=$('#syschips'), info=$('#sysinfo'); if(!box) return;
+  var btns=SCN.list.map(function(s){var b=document.createElement('button');b.type='button';b.textContent=s.name;b.style.setProperty('--c',s.col);
+    b.addEventListener('click',function(){SCN.focus(b.classList.contains('on')?-1:s.i)});box.appendChild(b);return b});
+  function show(i){btns.forEach(function(b,k){b.classList.toggle('on',k===i);b.setAttribute('aria-pressed',k===i)});
+    if(i>-1){var s=SCN.list[i];info.style.setProperty('--c',s.col);info.innerHTML='<b>'+s.name+': '+s.short.toLowerCase()+'</b><span>'+s.text+'</span>'}
+    else{info.style.removeProperty('--c');info.innerHTML='<b>Оберіть потік</b><span>Камера наблизиться, і ви побачите, як саме ми працюємо з цим процесом.</span>'}}
+  if(SCN.on) SCN.on(show); else SCN.focus=show;
+})();
+
+/* ---------- заявка на ШІ-аудит ---------- */
+(function(){
+  var dlg=$('#aud'), form=$('#audf'); if(!dlg) return;
+  var steps=$$('.astep',form), st=0, bar=$('#audbar'), num=$('#audn'), back=$('#audb'), go=$('#audgo'), err=$('#aerr'), done=$('#adone'), sending=false;
+  var Q={business:'Бізнес',orders:'Замовлень на місяць',channels:'Звідки клієнти',systems:'Чим користуються',manual:'Що робиться руками',pain:'Де губляться клієнти чи гроші',team:'Команда',goal:'Мета на три місяці',extra:'Додатково',name:'Ім\'я',contact:'Пошта'};
+  function show(n){st=n;steps.forEach(function(s,i){s.hidden=i!==n});bar.style.width=(Math.min(n+1,3)/3*100)+'%';num.textContent=n<3?'крок '+(n+1)+' із 3':'готово';back.style.visibility=n>0&&n<3?'visible':'hidden';go.textContent=n===2?'Надіслати заявку':n===3?'Закрити':'Далі';err.textContent='';
+    var f=$('textarea,input',steps[n]); if(f&&n<3&&matchMedia('(hover:hover)').matches) setTimeout(function(){f.focus()},60)}
+  function data(){var d={},fd=new FormData(form);Object.keys(Q).forEach(function(k){d[k]=fd.getAll(k).join(', ').trim()});return d}
+  function open(){if(dlg.open)return; if(st===3)show(0); if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','')}
+  $$('[data-audit]').forEach(function(b){b.addEventListener('click',open)});
+  $('#audx').addEventListener('click',function(){dlg.close()});
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+  back.addEventListener('click',function(){if(st>0)show(st-1)});
+  form.addEventListener('submit',async function(e){
+    e.preventDefault(); if(sending) return; var d=data();
+    if(st===3){dlg.close();return}
+    if(st===0&&d.business.length<10){err.textContent='Напишіть хоча б одне речення про бізнес.';return}
+    if(st<2){show(st+1);return}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.contact)){err.textContent='Вкажіть пошту, на яку надіслати відповідь.';return}
+    var txt=Object.keys(Q).filter(function(k){return d[k]}).map(function(k){return Q[k]+': '+d[k]}).join('\n'), ok=false;
+    if(window.CONSULTANT_URL){sending=true;go.disabled=true;go.textContent='Надсилаю…';
+      try{var r=await fetch(window.CONSULTANT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'audit',form:d})});var j=await r.json();ok=!!j.ok}catch(x){}
+      sending=false;go.disabled=false}
+    done.innerHTML='';
+    var b=document.createElement('b'), p=document.createElement('p'); done.appendChild(b); done.appendChild(p);
+    if(ok){b.textContent='Заявку отримано';p.textContent='Ми розберемо відповіді й надішлемо на вашу пошту, що саме увійде в аудит, термін і вартість.'}
+    else{b.textContent='Заявку сформовано';p.textContent='Прийом заявок із сайту ще підключається. Скопіюйте текст і надішліть його нам повідомленням у профілі на Freelancehunt: відповімо там.';
+      var pre=document.createElement('pre');pre.textContent='Заявка на ШІ-аудит\n'+txt;done.appendChild(pre);
+      var c=document.createElement('button');c.type='button';c.className='btn sm ghost';c.textContent='Скопіювати текст';c.addEventListener('click',function(){(navigator.clipboard?navigator.clipboard.writeText(pre.textContent):Promise.reject()).then(function(){c.textContent='Скопійовано'},function(){var r=document.createRange();r.selectNodeContents(pre);var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent='Виділено, натисніть Ctrl+C'})});done.appendChild(c)}
+    show(3);
+  });
+  show(0);
+})();
+
+})();
+</script>
