@@ -434,19 +434,19 @@ section.tier::before{content:"";position:absolute;left:0;right:0;top:0;height:1p
 .audl>div>b{font:800 22px/1 var(--f-display);color:transparent;-webkit-text-stroke:1px var(--ice)}
 .audl>div>span{flex:1;min-width:180px;color:var(--muted);font-size:14.5px} .audl strong{display:block;color:var(--fg);font-weight:600;font-size:15.5px}
 .audl .more{flex-basis:100%}
-dialog#aud{width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid rgba(111,227,255,.45);border-radius:22px;background:#080c18;color:var(--fg);overflow:auto;box-shadow:0 40px 140px rgba(0,0,0,.8)}
-dialog#aud::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
-#audf{display:grid;gap:0}
-#audf>header{display:flex;justify-content:space-between;gap:16px;padding:22px 24px 14px;position:relative}
-#audf h3{font:600 19px/1.3 var(--f-display);margin-top:10px} #audf h3 span{color:var(--muted);font:400 13px var(--f-mono)}
-#audf .xbtn{position:static;flex:none}
+dialog.dlg{width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid rgba(111,227,255,.45);border-radius:22px;background:#080c18;color:var(--fg);overflow:auto;box-shadow:0 40px 140px rgba(0,0,0,.8)}
+dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
+.dform{display:grid;gap:0}
+.dform>header{display:flex;justify-content:space-between;gap:16px;padding:22px 24px 14px;position:relative}
+.dform h3{font:600 19px/1.3 var(--f-display);margin-top:10px} .dform h3 span{color:var(--muted);font:400 13px var(--f-mono)}
+.dform .xbtn{position:static;flex:none}
 .audbar{height:3px;background:var(--line);margin:0 24px;border-radius:2px;overflow:hidden} .audbar i{display:block;height:100%;width:33%;background:linear-gradient(90deg,var(--ice),var(--sig));transition:width .4s}
 .astep{display:grid;gap:16px;padding:20px 24px 6px} .astep[hidden]{display:none}
-#audf label,#audf legend{font:500 14.5px/1.4 var(--f-body);color:var(--fg);display:grid;gap:8px;padding:0} #audf em{font-style:normal;color:var(--muted);font-weight:400}
-#audf fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
-#audf textarea,#audf input[type=text],#audf input[type=email]{width:100%;background:#05070e;border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--fg);font:400 16px/1.45 var(--f-body);resize:vertical}
-#audf textarea::placeholder,#audf input::placeholder{color:#55607e}
-#audf textarea:focus,#audf input:focus{outline:none;border-color:var(--ice)}
+.dform label,.dform legend{font:500 14.5px/1.4 var(--f-body);color:var(--fg);display:grid;gap:8px;padding:0} .dform em{font-style:normal;color:var(--muted);font-weight:400}
+.dform fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+.dform textarea,.dform input[type=text],.dform input[type=email]{width:100%;background:#05070e;border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--fg);font:400 16px/1.45 var(--f-body);resize:vertical}
+.dform textarea::placeholder,.dform input::placeholder{color:#55607e}
+.dform textarea:focus,.dform input:focus{outline:none;border-color:var(--ice)}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
 .opts label{display:block!important;cursor:pointer} .opts input{position:absolute;opacity:0;pointer-events:none}
 .opts span{display:block;border:1px solid var(--line);border-radius:999px;padding:8px 13px;font:400 14px var(--f-body);color:var(--muted);transition:all .2s}
@@ -455,7 +455,7 @@ dialog#aud::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fine{font:400 12px/1.5 var(--f-mono);color:var(--muted)}
 .aerr{margin:0 24px;color:var(--bad);font-size:14px;min-height:1.4em}
-#audf>footer{display:flex;justify-content:space-between;gap:10px;padding:8px 24px 22px;position:static}
+.dform>footer{display:flex;justify-content:space-between;gap:10px;padding:8px 24px 22px;position:static}
 .adone{display:grid;gap:12px;padding:6px 0 10px} .adone b{font:600 20px/1.3 var(--f-display)} .adone p{color:var(--muted)}
 .adone pre{margin:0;max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:400 12.5px/1.6 var(--f-mono);padding:14px;border-radius:12px;background:#05070e;border:1px solid var(--line);color:var(--fg)}
 
@@ -485,7 +485,7 @@ dialog#aud::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
   <nav class="links" aria-label="Розділи">
     <a href="#flow">Рівень 1</a><a href="#l2">Рівень 2</a><a href="#l3">Рівень 3</a><a href="#adv">Переваги</a><a href="#system">Уся система</a><a href="#audit">ШІ-аудит</a>
   </nav>
-  <button class="btn sm mag" type="button" data-audit>Залишити заявку</button>
+  <button class="btn sm mag" type="button" data-req>Залишити заявку</button>
 </div></header>
 
 <main id="top">
@@ -803,19 +803,19 @@ dialog#aud::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
   <div class="final rv">
     <span class="eyebrow">Зв'язок</span>
     <h2 style="margin-top:18px">Що у вас досі робиться руками?</h2>
-    <p>Опишіть задачу кількома реченнями. Відповімо, чи можна її автоматизувати, скільки це займе і скільки коштуватиме.</p>
+    <p>Залиште заявку: опишіть задачу кількома реченнями. Відповімо особисто, чи можна її автоматизувати, скільки це займе і скільки коштуватиме.</p>
     <div class="cta" style="justify-content:center;margin-top:0">
-      <a class="btn mag" href="https://freelancehunt.com/freelancer/AiraNova.html" target="_blank" rel="noopener">Написати на Freelancehunt <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 11l6-6M6 5h5v5"/></svg></a>
+      <button class="btn mag" type="button" data-req>Залишити заявку <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 11l6-6M6 5h5v5"/></svg></button>
     </div>
-    <p style="margin:22px auto 0;font:400 12.5px var(--f-mono)">працюємо через біржу Freelancehunt · безпечна угода: оплата надходить виконавцю лише після того, як ви приймете роботу</p>
+    <p style="margin:22px auto 0;font:400 12.5px var(--f-mono)">працюємо з вами напряму, без посередників · відповідаємо особисто на пошту або в месенджер</p>
   </div>
 </div></section>
 
 </main>
 <footer><div class="wrap"><span>AiraNova Studio · сайти, автоматизації, ШІ-агенти · Україна</span><span>зроблено ШІ під керівництвом людини</span></div></footer>
 
-<dialog id="aud" aria-labelledby="audh">
-  <form id="audf" novalidate>
+<dialog id="aud" class="dlg" aria-labelledby="audh">
+  <form id="audf" class="dform" novalidate>
     <header><div><span class="eyebrow">ШІ-аудит бізнесу</span><h3 id="audh">Заявка: <span id="audn">крок 1 із 3</span></h3></div><button type="button" class="xbtn" id="audx" aria-label="Закрити">×</button></header>
     <div class="audbar"><i id="audbar"></i></div>
     <div class="astep" data-s="0">
@@ -841,6 +841,20 @@ dialog#aud::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
     <div class="astep" data-s="3" hidden><div class="adone" id="adone"></div></div>
     <p class="aerr" id="aerr" role="alert"></p>
     <footer><button type="button" class="btn ghost sm" id="audb">Назад</button><button type="submit" class="btn sm" id="audgo">Далі</button></footer>
+  </form>
+</dialog>
+
+<dialog id="req" class="dlg" aria-labelledby="reqh">
+  <form id="reqf" class="dform" novalidate>
+    <header><div><span class="eyebrow">Зв'язок напряму</span><h3 id="reqh">Залишити заявку</h3></div><button type="button" class="xbtn" id="reqx" aria-label="Закрити">×</button></header>
+    <div class="astep" id="reqs">
+      <label>Що хочете автоматизувати або яку задачу розв'язати?<textarea name="task" rows="4" maxlength="1000" required placeholder="Наприклад: замовлення із сайту й Instagram переносимо в CRM руками, хочемо, щоб це робилося само"></textarea></label>
+      <div class="two"><label>Як до вас звертатись?<input type="text" name="name" maxlength="80" autocomplete="name"></label><label>Куди відповісти?<input type="text" name="contact" maxlength="120" required placeholder="пошта, Telegram або телефон"></label></div>
+      <p class="fine">Контакт використаємо лише для відповіді на цю заявку. Відповідаємо особисто.</p>
+    </div>
+    <div class="astep" id="reqd" hidden><div class="adone" id="reqdone"></div></div>
+    <p class="aerr" id="reqerr" role="alert"></p>
+    <footer><span></span><button type="submit" class="btn sm" id="reqgo">Надіслати заявку</button></footer>
   </form>
 </dialog>
 
@@ -1176,7 +1190,7 @@ $$('.card').forEach(function(c){
 /* ---------- демо-консультант (сценарій, ліміт 10 питань; готовий до підключення живої моделі через window.CONSULTANT_URL) ---------- */
 (function(){
   var chat=$('#chat'), chips=$('#chips'), leftEl=$('#left'), inp=$('#chatin'), busy=false, left=10, hist=[], sid=Math.random().toString(36).slice(2)+Date.now().toString(36);
-  var CTA=' Опишіть задачу в кількох реченнях на Freelancehunt, і ми скажемо, з чого почати.';
+  var CTA=' Натисніть «Залишити заявку», опишіть задачу в кількох реченнях, і ми відповімо особисто.';
   var QA=[
     {q:'Що таке ШІ-аудит?',k:['аудит','з чого поч','перший крок','консультац','не знаю'],
      a:'ШІ-аудит це перший крок: ми глибоко розбираємо, як у вас ходять замовлення, гроші, товар і звіти, і показуємо, де автоматизація чи ШІ дадуть результат. Ви отримуєте карту процесів, місця втрат і план із порядком та цінами. Заявку можна залишити кнопкою «Залишити заявку на аудит» на цій сторінці, вартість і деталі надішлемо у відповіді.'},
@@ -1209,7 +1223,7 @@ $$('.card').forEach(function(c){
     await sleep(600);t.remove();hist.push({role:'user',content:q},{role:'assistant',content:a});
     var m=add('a');for(var i=1;i<=a.length;i+=2){m.textContent=a.slice(0,i+1);chat.scrollTop=chat.scrollHeight;await sleep(11)}
     m.textContent=a;
-    if(left<=0){add('a','Це було останнє питання демо. Далі краще говорити предметно: опишіть свою задачу на Freelancehunt, і ми відповімо особисто.');inp.disabled=true;inp.placeholder='Ліміт демо вичерпано';$$('button',chips).forEach(function(b){b.disabled=true})}
+    if(left<=0){add('a','Це було останнє питання демо. Далі краще говорити предметно: натисніть «Залишити заявку», опишіть свою задачу, і ми відповімо особисто.');inp.disabled=true;inp.placeholder='Ліміт демо вичерпано';$$('button',chips).forEach(function(b){b.disabled=true})}
     busy=false;
   }
   QA.forEach(function(x){var b=document.createElement('button');b.type='button';b.textContent=x.q;b.addEventListener('click',function(){ask(x.q,x.a)});chips.appendChild(b)});
@@ -1440,12 +1454,36 @@ $$('.card').forEach(function(c){
     done.innerHTML='';
     var b=document.createElement('b'), p=document.createElement('p'); done.appendChild(b); done.appendChild(p);
     if(ok){b.textContent='Заявку отримано';p.textContent='Ми розберемо відповіді й надішлемо на вашу пошту, що саме увійде в аудит, термін і вартість.'}
-    else{b.textContent='Заявку сформовано';p.textContent='Прийом заявок із сайту ще підключається. Скопіюйте текст і надішліть його нам повідомленням у профілі на Freelancehunt: відповімо там.';
+    else{b.textContent='Не вдалося надіслати';p.textContent='Схоже, зараз немає зв\'язку із сервером. Спробуйте ще раз за хвилину. Текст заявки нижче, щоб не набирати його знову.';
       var pre=document.createElement('pre');pre.textContent='Заявка на ШІ-аудит\n'+txt;done.appendChild(pre);
       var c=document.createElement('button');c.type='button';c.className='btn sm ghost';c.textContent='Скопіювати текст';c.addEventListener('click',function(){(navigator.clipboard?navigator.clipboard.writeText(pre.textContent):Promise.reject()).then(function(){c.textContent='Скопійовано'},function(){var r=document.createRange();r.selectNodeContents(pre);var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent='Виділено, натисніть Ctrl+C'})});done.appendChild(c)}
     show(3);
   });
   show(0);
+})();
+
+/* ---------- заявка на зв'язок напряму (головна кнопка) ---------- */
+(function(){
+  var dlg=$('#req'), form=$('#reqf'); if(!dlg) return;
+  var s1=$('#reqs'), s2=$('#reqd'), go=$('#reqgo'), err=$('#reqerr'), done=$('#reqdone'), fin=false, sending=false;
+  function reset(){fin=false;s1.hidden=false;s2.hidden=true;go.textContent='Надіслати заявку';err.textContent=''}
+  function open(){if(dlg.open)return; if(fin){reset();form.reset()} if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','')}
+  $$('[data-req]').forEach(function(b){b.addEventListener('click',open)});
+  $('#reqx').addEventListener('click',function(){dlg.close()});
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+  form.addEventListener('submit',async function(e){
+    e.preventDefault(); if(sending) return; if(fin){dlg.close();return}
+    var fd=new FormData(form), task=String(fd.get('task')||'').trim(), contact=String(fd.get('contact')||'').trim(), name=String(fd.get('name')||'').trim();
+    if(task.length<10){err.textContent='Опишіть задачу хоча б одним реченням.';return}
+    if(contact.length<5){err.textContent='Вкажіть, куди вам відповісти: пошту, Telegram або телефон.';return}
+    err.textContent=''; var ok=false;
+    if(window.CONSULTANT_URL){sending=true;go.disabled=true;go.textContent='Надсилаю…';
+      try{var r=await fetch(window.CONSULTANT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'audit',form:{business:task,contact:contact,name:name,extra:"ЗАЯВКА НА ЗВ'ЯЗОК із головної кнопки сайту (це не заявка на аудит)"}})});var j=await r.json();ok=!!j.ok}catch(x){}
+      sending=false;go.disabled=false}
+    if(!ok){go.textContent='Надіслати заявку';err.textContent='Не вдалося надіслати. Спробуйте ще раз за хвилину.';return}
+    done.innerHTML='';var b=document.createElement('b'),p=document.createElement('p');b.textContent='Заявку отримано';p.textContent='Дякуємо. Ми прочитаємо її й відповімо вам особисто на вказаний контакт.';done.appendChild(b);done.appendChild(p);
+    fin=true;s1.hidden=true;s2.hidden=false;go.textContent='Закрити';
+  });
 })();
 
 })();
