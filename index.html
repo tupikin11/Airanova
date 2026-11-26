@@ -235,7 +235,7 @@ tr{transition:background .25s} tr.scan{background:rgba(111,227,255,.1)} tr.bad{b
 footer{padding-block:34px 44px;color:var(--muted);font:400 12.5px/1.6 var(--f-mono)}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
 
-/* v3: потоки, рівні послуг, розбір файлів, Пульс */
+/* v3: потоки, тарифи послуг, розбір файлів, Пульс */
 #fx{position:fixed;inset:0;z-index:1;pointer-events:none}
 #fx span{position:absolute;transform:translate(-50%,-50%);font:400 11.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:7px}
 #fx span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c,var(--ice));box-shadow:0 0 10px var(--c,var(--ice))}
@@ -315,7 +315,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
   html{scroll-behavior:auto} .rv{opacity:1;transform:none}
 }
 
-/* v4: сцена від хаосу до системи, рівні по черзі, пульт, аудит, усе натискне */
+/* v4: сцена від хаосу до системи, тарифи по черзі, пульт, аудит, усе натискне */
 :root{--t1:#6fe3ff;--t2:#b894ff;--t3:#ff9d3d}
 #fx button{position:absolute;transform:translate(-50%,-50%);font:400 11.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:7px;background:none;border:1px solid transparent;border-radius:999px;padding:9px 12px;cursor:pointer;pointer-events:none;transition:color .2s,border-color .2s,background .2s,box-shadow .2s}
 #fx button::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c,var(--ice));box-shadow:0 0 10px var(--c,var(--ice))}
@@ -368,7 +368,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
 .next .btn{font-size:16px;padding:17px 26px;animation:nudge 2.6s infinite}
 @keyframes nudge{0%,100%{box-shadow:0 0 0 0 rgba(255,138,31,.55)}60%{box-shadow:0 0 0 14px rgba(255,138,31,0)}}
 
-/* рівні */
+/* тарифи */
 a.card{text-decoration:none;color:inherit;display:flex}
 .svc .go{margin-top:auto;font:600 14px/1 var(--f-body);color:var(--tc);padding-top:6px}
 .lv1{--tc:var(--t1)} .lv2{--tc:var(--t2)} .lv3{--tc:var(--t3)}
@@ -503,6 +503,9 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
 @media (max-width:1100px){.cases.u4{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:640px){.cases.u4{grid-template-columns:1fr}}
 
+.glyph.st{display:grid;place-items:center;background:rgba(6,9,20,.6)}
+.glyph.st svg{width:100%;height:100%;display:block}
+
 </style>
 
 <canvas id="gl" aria-hidden="true"></canvas>
@@ -524,7 +527,7 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
 <section class="hero"><div class="wrap">
   <span class="eyebrow">Студія автоматизації та ШІ · Україна</span>
   <h1>Будуємо <span class="rot" id="rot" aria-label="сайти, автоматизації, ШІ-агентів">автоматизації</span> замість хаосу</h1>
-  <p class="lead">Так виглядає бізнес на старті: замовлення, склад, реклама й гроші біжать кожен у свій бік. Ми зводимо їх в одну систему, рівень за рівнем. Гортайте вниз і дивіться, як хаос за спиною стає потоком. <b>Працює ШІ, керує й відповідає людина.</b></p>
+  <p class="lead">Так виглядає бізнес на старті: замовлення, склад, реклама й гроші біжать кожен у свій бік. Ми зводимо їх в одну систему, тариф за тарифом. Гортайте вниз і дивіться, як хаос за спиною стає потоком. <b>Працює ШІ, керує й відповідає людина.</b></p>
   <div class="cta">
     <a class="btn mag" href="#flow">Запустити живу схему <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
     <a class="btn ghost mag" href="#l2">Запитати консультанта</a>
@@ -551,39 +554,39 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
     <article class="card case tilt rv" data-more="Скрипти за розкладом звіряють залишки, оплати й звіти. Нічний Менеджер відповідає клієнтам і приймає замовлення, поки команда відпочиває.|Усі сплять, а замовлення приймаються. Зранку команда бачить готовий результат замість купи рутини."><span class="un">03</span><h3>Нічні скрипти</h3><p>Система працює й тоді, коли офіс зачинений: уночі та у вихідні.</p></article>
     <article class="card case tilt rv" data-more="Локальний ШІ працює на вашому комп'ютері. Документи, зарплати й клієнтська база не надсилаються у хмарні сервіси.|Можна автоматизувати навіть чутливі процеси, не ризикуючи витоком даних."><span class="un">04</span><h3>Локальний ШІ</h3><p>Для чутливих даних ставимо ШІ у вас в офісі: дані не йдуть у хмару.</p></article>
   </div>
-  <div class="next rv"><span>Тепер по порядку: з чого починають і до чого доходять.</span><a class="btn mag" href="#services">Далі: три рівні послуг <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+  <div class="next rv"><span>Тепер по порядку: з чого починають і до чого доходять.</span><a class="btn mag" href="#services">Далі: три тарифи послуг <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
 </div></section>
 
 <section class="s" id="services"><div class="wrap">
   <div class="head rv">
     <span class="eyebrow">Шлях від хаосу до системи</span>
-    <h2 data-scr>Три рівні. Кожен додає порядку й грошей</h2>
-    <p>Починати можна з найпростішого. Кожен наступний рівень включає попередній. Що далі ви гортаєте, то зібранішою стає картина за спиною: так само змінюється бізнес.</p>
+    <h2 data-scr>Три тарифи. Кожен додає порядку й грошей</h2>
+    <p>Починати можна з найпростішого. Кожен наступний тариф включає попередній. Що далі ви гортаєте, то зібранішою стає картина за спиною: так само змінюється бізнес.</p>
   </div>
   <div class="svc">
     <a class="card tilt rv lv1" href="#flow">
-      <div class="glyph"><canvas data-g="flow"></canvas></div>
+      <div class="glyph st"><svg viewBox="0 0 320 120" role="img" aria-label="Сайт, CRM, каса й доставка з'єднані в один ланцюг"><g fill="none" stroke="#6fe3ff" stroke-width="1.5"><rect x="22" y="34" width="44" height="44" rx="11"/><rect x="98" y="34" width="44" height="44" rx="11"/><rect x="174" y="34" width="44" height="44" rx="11"/><rect x="250" y="34" width="44" height="44" rx="11"/><path d="M70 56h22m-6-5 6 5-6 5" stroke-opacity=".6"/><path d="M146 56h22m-6-5 6 5-6 5" stroke-opacity=".6"/><path d="M222 56h22m-6-5 6 5-6 5" stroke-opacity=".6"/><path d="M34 50h20M34 56h20M34 62h12"/><circle cx="120" cy="52" r="6"/><path d="M109 68c2-7 20-7 22 0"/><path d="M186 46h20v22l-4-3-3 3-3-3-3 3-3-3-4 3z"/><path d="M262 50h14v14h-14zM276 54h6l4 5v5h-10"/></g><g fill="#8f98b8" font-family="JetBrains Mono,monospace" font-size="10" letter-spacing=".08em" text-anchor="middle"><text x="44" y="98">сайт</text><text x="120" y="98">CRM</text><text x="196" y="98">каса</text><text x="272" y="98">доставка</text></g></svg></div>
       <div class="lvl"><span class="n">Базовий · старт</span><i aria-hidden="true"><b class="f"></b><b></b><b></b></i></div>
       <h3>Автоматизація без ШІ</h3>
       <p class="desc">Найпростіше й найдоступніше. Системи, якими ви вже користуєтесь, починають самі передавати дані одна одній.</p>
       <span class="go">Дивитись «Базовий» →</span>
     </a>
     <a class="card tilt rv lv2" href="#l2">
-      <div class="glyph"><canvas data-g="net"></canvas></div>
+      <div class="glyph st"><svg viewBox="0 0 320 120" role="img" aria-label="ШІ читає документи й повідомлення та повертає готовий результат"><g fill="none" stroke="#a88fff" stroke-width="1.5"><path d="M30 30h26l10 10v38H30z"/><path d="M56 30v10h10M38 50h20M38 58h20M38 66h12"/><path d="M84 44h34a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6H98l-8 7v-7h-6z" stroke-opacity=".55"/><path d="M132 58h20m-6-5 6 5-6 5" stroke-opacity=".6"/><path d="M178 30l24 14v28l-24 14-24-14V44z" fill="rgba(168,143,255,.12)"/><path d="M210 58h20m-6-5 6 5-6 5" stroke-opacity=".6"/><rect x="240" y="34" width="52" height="48" rx="10"/><path d="M250 50l4 4 7-8M250 66l4 4 7-8M268 50h14M268 66h14"/></g><text x="178" y="62" fill="#e9e4ff" font-family="Unbounded,sans-serif" font-weight="800" font-size="13" text-anchor="middle">ШІ</text><g fill="#8f98b8" font-family="JetBrains Mono,monospace" font-size="10" letter-spacing=".08em" text-anchor="middle"><text x="76" y="100">файли й чати</text><text x="266" y="100">готово</text></g></svg></div>
       <div class="lvl"><span class="n">Комфорт · ШІ</span><i aria-hidden="true"><b class="f"></b><b class="f"></b><b></b></i></div>
       <h3>ШІ-агенти й помічники</h3>
       <p class="desc">Складніше й дорожче. ШІ бере задачі, де раніше потрібна була людина: читати, шукати, звіряти, відповідати.</p>
       <span class="go">Дивитись «Комфорт» →</span>
     </a>
     <a class="card tilt rv lv3" href="#l3">
-      <div class="glyph"><canvas data-g="grid"></canvas></div>
+      <div class="glyph st"><svg viewBox="0 0 320 120" role="img" aria-label="Увесь бізнес на одному екрані телефона"><g fill="none" stroke="#ff9d3a" stroke-width="1.5"><rect x="130" y="12" width="60" height="96" rx="10" fill="rgba(255,138,31,.08)"/><path d="M152 19h16"/><path d="M140 62l10-10 8 6 12-14 10 8" /><path d="M140 76h40M140 86h26" stroke-opacity=".6"/><rect x="140" y="28" width="18" height="12" rx="3" stroke-opacity=".7"/><rect x="162" y="28" width="18" height="12" rx="3" stroke-opacity=".7"/><path d="M58 30C96 30 100 60 130 60" stroke-opacity=".45"/><path d="M58 50C96 50 100 60 130 60" stroke-opacity=".45"/><path d="M58 70C96 70 100 60 130 60" stroke-opacity=".45"/><path d="M58 90C96 90 100 60 130 60" stroke-opacity=".45"/><path d="M262 30C224 30 220 60 190 60" stroke-opacity=".45"/><path d="M262 50C224 50 220 60 190 60" stroke-opacity=".45"/><path d="M262 70C224 70 220 60 190 60" stroke-opacity=".45"/><path d="M262 90C224 90 220 60 190 60" stroke-opacity=".45"/></g><g fill="#ff9d3a"><circle cx="56" cy="30" r="3"/><circle cx="264" cy="30" r="3"/><circle cx="56" cy="50" r="3"/><circle cx="264" cy="50" r="3"/><circle cx="56" cy="70" r="3"/><circle cx="264" cy="70" r="3"/><circle cx="56" cy="90" r="3"/><circle cx="264" cy="90" r="3"/></g></svg></div>
       <div class="lvl"><span class="n">VIP · комплекс</span><i aria-hidden="true"><b class="f"></b><b class="f"></b><b class="f"></b></i></div>
       <h3>Пульт Вашого бізнесу</h3>
-      <p class="desc">Найбільший рівень. Увесь бізнес зведено в одну систему, якою ви керуєте з телефона. Включає перші два і бонус: Нічного Менеджера.</p>
+      <p class="desc">Найбільший тариф. Увесь бізнес зведено в одну систему, якою ви керуєте з телефона. Включає перші два і бонус: Нічного Менеджера.</p>
       <span class="go">Дивитись VIP →</span>
     </a>
   </div>
-  <div class="next rv"><span>Не знаєте, який рівень ваш? Почніть із найпростішого й подивіться його наживо.</span><a class="btn mag" href="#flow">Почати з «Базового» <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+  <div class="next rv"><span>Не знаєте, який тариф ваш? Почніть із найпростішого й подивіться його наживо.</span><a class="btn mag" href="#flow">Почати з «Базового» <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
 </div></section>
 
 <section class="s tier t1" id="flow"><div class="wrap">
@@ -618,7 +621,7 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
   </div>
   <div class="tgrid">
     <div class="card rv">
-      <h3>Що входить у рівень «Базовий»</h3>
+      <h3>Що входить у тариф «Базовий»</h3>
       <p class="hint">Натисніть на рядок, щоб побачити, як це пов'язано із системою і як допомагає заробляти.</p>
       <ul class="xl">
         <li data-more="WooCommerce, KeyCRM, Finmap і Checkbox передають дані одна одній самі. KeyCRM стає центром, звідки команди розходяться далі.|Замовлення не губляться й не дублюються. Менеджер продає, а не переносить цифри між вікнами.">Сайт, CRM, облік і каса в одній зв'язці</li>
@@ -630,9 +633,9 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
       </ul>
     </div>
     <div class="tside">
-      <div class="card rv" data-more="Усе з цього рівня щодня працює в нашому власному магазині одягу, тож ми знаємо, де зв'язка ламається і як її лагодити.|Ви отримуєте схему, вже перевірену на справжніх замовленнях, а не експеримент за ваш рахунок."><h3>Кому підходить</h3><p>Магазину чи сервісу, де замовлення вже є, але дані між сайтом, CRM, касою й обліком переносять люди.</p></div>
+      <div class="card rv" data-more="Усе з цього тарифу щодня працює в нашому власному магазині одягу, тож ми знаємо, де зв'язка ламається і як її лагодити.|Ви отримуєте схему, вже перевірену на справжніх замовленнях, а не експеримент за ваш рахунок."><h3>Кому підходить</h3><p>Магазину чи сервісу, де замовлення вже є, але дані між сайтом, CRM, касою й обліком переносять люди.</p></div>
       <div class="card rv" data-more="Після запуску лишається інструкція простою мовою: що куди ходить і що робити, якщо щось зупинилось.|Ви не залежите від нас у дрібницях, а команда не боїться системи."><h3>Що змінюється</h3><p>Замовлення саме проходить шлях від сайту до накладної. Команда займається покупцями, а не таблицями.</p></div>
-      <div class="card rv" data-more="Базовий дає чисті дані в одному місці. Без цього ШІ й аналітика працюють на здогадках.|Кожен наступний крок коштує дешевше й дає більше, бо стоїть на порядку, а не на хаосі."><h3>Що це дає далі</h3><p>Основу для рівнів «Комфорт» і VIP: ШІ та пульт потребують даних, яким можна вірити.</p></div>
+      <div class="card rv" data-more="Базовий дає чисті дані в одному місці. Без цього ШІ й аналітика працюють на здогадках.|Кожен наступний крок коштує дешевше й дає більше, бо стоїть на порядку, а не на хаосі."><h3>Що це дає далі</h3><p>Основу для тарифів «Комфорт» і VIP: ШІ та пульт потребують даних, яким можна вірити.</p></div>
     </div>
   </div>
   <div class="next rv"><span>Порядок у даних є. Тепер їх можна довірити ШІ.</span><a class="btn mag" href="#l2">Далі: «Комфорт», ШІ бере рутину <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
@@ -642,7 +645,7 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
   <div class="head rv">
     <span class="eyebrow">Комфорт · ШІ-агенти й помічники</span>
     <h2 data-scr>ШІ бере те, де раніше потрібна була людина</h2>
-    <p>Складніший і дорожчий рівень. ШІ читає, шукає, звіряє й готує відповіді, а людина лише підтверджує важливе. Обидва демо нижче справжні: поставте питання й киньте власний файл.</p>
+    <p>Складніший і дорожчий тариф. ШІ читає, шукає, звіряє й готує відповіді, а людина лише підтверджує важливе. Обидва демо нижче справжні: поставте питання й киньте власний файл.</p>
   </div>
   <div class="demos">
     <div class="card demo rv">
@@ -666,7 +669,7 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
   </div>
   <div class="tgrid">
     <div class="card rv">
-      <h3>Що входить у рівень «Комфорт»</h3>
+      <h3>Що входить у тариф «Комфорт»</h3>
       <p class="hint">Натисніть на рядок, щоб побачити зв'язок із системою й користь.</p>
       <ul class="xl">
         <li data-more="У нашому магазині ШІ-менеджер уночі відповідає клієнтам за скриптами відділу продажів і звіряє оплати, а складне передає людям зранку.|Звернення о другій ночі не лишається без відповіді до ранку. Клієнт, якому відповіли одразу, частіше доходить до оплати.">ШІ-менеджер, що відповідає клієнтам, коли команда відпочиває</li>
@@ -678,9 +681,9 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
       </ul>
     </div>
     <div class="tside">
-      <div class="card rv" data-more="ШІ підключається до тих самих CRM, обліку й таблиць, які зв'язав рівень «Базовий».|Що чистіші дані, то точніші відповіді й висновки ШІ."><h3>Кому підходить</h3><p>Бізнесу, де вже є порядок у даних і є задачі, що з'їдають час людей: відповіді, звірки, документи, звіти.</p></div>
+      <div class="card rv" data-more="ШІ підключається до тих самих CRM, обліку й таблиць, які зв'язав тариф «Базовий».|Що чистіші дані, то точніші відповіді й висновки ШІ."><h3>Кому підходить</h3><p>Бізнесу, де вже є порядок у даних і є задачі, що з'їдають час людей: відповіді, звірки, документи, звіти.</p></div>
       <div class="card rv" data-more="Ми не приховуємо, що з вами працює ШІ, і самі користуємося цими агентами щодня.|Ви бачите справжні межі технології до оплати, а не після."><h3>Чесно про ШІ</h3><p>ШІ помиляється, тому ми ставимо йому межі й перевірки. Відповідальність за результат лишається за людиною.</p></div>
-      <div class="card rv" data-more="Агенти й дані з рівнів «Базовий» і «Комфорт» стають показниками та кнопками на пульті рівня VIP.|Ви не просто маєте помічників, а бачите й керуєте ними з одного екрана."><h3>Що це дає далі</h3><p>Команда встигає більше тим самим складом, а власник отримує час на розвиток замість контролю.</p></div>
+      <div class="card rv" data-more="Агенти й дані з тарифів «Базовий» і «Комфорт» стають показниками та кнопками на пульті тарифу VIP.|Ви не просто маєте помічників, а бачите й керуєте ними з одного екрана."><h3>Що це дає далі</h3><p>Команда встигає більше тим самим складом, а власник отримує час на розвиток замість контролю.</p></div>
     </div>
   </div>
   <div class="next rv"><span>Системи зв'язані, ШІ працює. Лишилось побачити все на одному екрані.</span><a class="btn mag" href="#l3">Далі: VIP, Пульт Вашого бізнесу <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
@@ -736,7 +739,7 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
   <div class="tgrid" style="margin-top:18px">
     <div class="card rv">
       <h3>Що ще входить у VIP</h3>
-      <p class="hint">VIP включає все з рівнів «Базовий» і «Комфорт». Натисніть на рядок, щоб побачити деталі.</p>
+      <p class="hint">VIP включає все з тарифів «Базовий» і «Комфорт». Натисніть на рядок, щоб побачити деталі.</p>
       <ul class="xl">
         <li class="bonus" data-more="Нічний Менеджер відповідає клієнтам і приймає замовлення вночі, коли команда відпочиває. Вранці менеджери бачать готові замовлення й усе, що сталося за ніч.|Усі сплять, а замовлення приймаються. Нічні покупці не чекають до ранку й не йдуть до конкурентів."><b>Унікальний бонус VIP</b> Налаштування Нічного Менеджера: усі сплять, а замовлення приймаються</li>
         <li data-more="Збираємо дані з ваших систем у Google Sheets та Apps Script і показуємо їх так, як зручно саме вам.|Звіт, який раніше збирали півдня, оновлюється сам. Ви дивитесь на цифри, а не чекаєте на них.">Дашборди й звіти, що оновлюються самі</li>
@@ -748,11 +751,11 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
       </ul>
     </div>
     <div class="tside">
-      <div class="card rv" data-more="Пульт стоїть на зв'язках рівня «Базовий» і агентах рівня «Комфорт», тому показує живі дані, а не вручну заповнені таблиці.|Ви бачите правду про бізнес щодня, а не раз на місяць."><h3>Кому підходить</h3><p>Власнику, який хоче бачити весь бізнес і керувати ним, не занурюючись у кожну таблицю й кожен чат.</p></div>
+      <div class="card rv" data-more="Пульт стоїть на зв'язках тарифу «Базовий» і агентах тарифу «Комфорт», тому показує живі дані, а не вручну заповнені таблиці.|Ви бачите правду про бізнес щодня, а не раз на місяць."><h3>Кому підходить</h3><p>Власнику, який хоче бачити весь бізнес і керувати ним, не занурюючись у кожну таблицю й кожен чат.</p></div>
       <div class="card rv" data-more="Показники, правила перевірок і кнопки підбираються під ваші процеси на аудиті, а не беруться з шаблону.|Ви платите за те, чим справді користуватиметесь щодня."><h3>Тільки ваші показники</h3><p>Немає двох однакових пультів. Підключаємо саме ті цифри й кнопки, які потрібні Вашому бізнесу.</p></div>
     </div>
   </div>
-  <div class="next rv"><span>Ви бачили всі три рівні. Чому нам можна це довірити?</span><a class="btn mag" href="#adv">Далі: наші переваги <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
+  <div class="next rv"><span>Ви бачили всі три тарифи. Чому нам можна це довірити?</span><a class="btn mag" href="#adv">Далі: наші переваги <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a></div>
 </div></section>
 
 <section class="s" id="adv"><div class="wrap">
@@ -831,7 +834,7 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
       <div class="head rv" style="margin-bottom:22px">
         <span class="eyebrow">Уся система разом</span>
         <h2 data-scr>Хаос став потоком</h2>
-        <p>Вісім процесів, які на початку бігли хто куди, тепер проходять крізь три рівні, сходяться у вузол і стають грошовим потоком. Натисніть на будь-який потік, щоб наблизитись і побачити, що ми з ним робимо.</p>
+        <p>Вісім процесів, які на початку бігли хто куди, тепер проходять крізь три тарифи, сходяться у вузол і стають грошовим потоком. Натисніть на будь-який потік, щоб наблизитись і побачити, що ми з ним робимо.</p>
       </div>
       <div class="syschips" id="syschips"></div>
       <div class="sysinfo" id="sysinfo" aria-live="polite"><b>Оберіть потік</b><span>Камера наблизиться, і ви побачите, як саме ми працюємо з цим процесом.</span></div>
@@ -855,7 +858,7 @@ dialog.dlg::backdrop{background:rgba(2,4,10,.78);backdrop-filter:blur(6px)}
     <div class="audl">
       <div data-more="Розбираємо ваші відповіді й матеріали: CRM, таблиці, звіти, регламенти, скрипти продажів, мотивацію команди.|Ви вперше бачите всі процеси на одній схемі й розумієте, де саме втрачається час."><b>01</b><span><strong>Карта процесів</strong>Як насправді рухаються замовлення, гроші й товар.</span></div>
       <div data-more="ШІ проходить по даних і шукає розриви: ручне перенесення, подвійне введення, розбіжності між системами, заявки без відповіді.|Ви бачите втрати в конкретних місцях, а не «десь у процесах»."><b>02</b><span><strong>Де губляться час і гроші</strong>Конкретні місця, а не загальні слова.</span></div>
-      <div data-more="Для кожного місця пропонуємо рішення й рівень: проста зв'язка, ШІ-агент чи показник на пульті. З порядком і ціною.|Ви вкладаєте спершу туди, де віддача найшвидша."><b>03</b><span><strong>План автоматизації</strong>Що робити першим, що другим і скільки це коштуватиме.</span></div>
+      <div data-more="Для кожного місця пропонуємо рішення й тариф: проста зв'язка, ШІ-агент чи показник на пульті. З порядком і ціною.|Ви вкладаєте спершу туди, де віддача найшвидша."><b>03</b><span><strong>План автоматизації</strong>Що робити першим, що другим і скільки це коштуватиме.</span></div>
       <div data-more="Якщо автоматизація вам не окупиться або задача не наша, ми так і скажемо.|Аудит корисний навіть без продовження: план лишається у вас."><b>04</b><span><strong>Чесна відповідь</strong>Чи можемо ми бути вам корисні.</span></div>
     </div>
   </div>
@@ -929,7 +932,7 @@ var $ = function(s,r){return (r||document).querySelector(s)}, $$ = function(s,r)
 var sleep = function(ms){return new Promise(function(r){setTimeout(r, RM? Math.min(ms,60):ms)})};
 var mouse = {x:0,y:0,tx:0,ty:0};
 
-/* ---------- сцена: від хаосу до системи. Потоки процесів блукають урізнобій, з кожним рівнем послуг збираються у вузол і стають грошовим потоком ---------- */
+/* ---------- сцена: від хаосу до системи. Потоки процесів блукають урізнобій, з кожним тарифом послуг збираються у вузол і стають грошовим потоком ---------- */
 var SCN = {focus:function(){}, list:[]};
 (function(){
   var cv = $('#gl'), fx = $('#fx'), gl = null;
@@ -1259,7 +1262,7 @@ $$('.card').forEach(function(c){
     {q:'Чи під\'єднуєте інші CRM?',k:['crm','срм','іншу систем','інші систем','під\'єдн','підключ','bitrix','бітрікс','salesdrive','1с','1c','shopify','хорошоп'],
      a:'Так, ми під\'єднуємо різні системи, не лише KeyCRM: інші CRM, облік, оплату, склад, доставку, месенджери. Зазвичай підходить усе, що має API або вивантаження даних. Деталі обговорюємо індивідуально під вашу задачу. Напишіть, якою системою користуєтесь і що з нею треба з\'єднати.'},
     {q:'З чого почати автоматизацію?',k:['автоматиз','магазин','crm','keycrm','woocommerce','замовлен','чек','checkbox','finmap','пошт','ттн','wayforpay','зв\'яз'],
-     a:'Зазвичай з рівня «Базовий»: зв\'язуємо системи, якими ви вже користуєтесь. Замовлення із сайту саме потрапляє в CRM, Checkbox видає чек, надходження записується у Finmap, створюється накладна Нової пошти, команда отримує сповіщення в Telegram. Це найшвидше повертає час і не потребує ШІ.'},
+     a:'Зазвичай з тарифу «Базовий»: зв\'язуємо системи, якими ви вже користуєтесь. Замовлення із сайту саме потрапляє в CRM, Checkbox видає чек, надходження записується у Finmap, створюється накладна Нової пошти, команда отримує сповіщення в Telegram. Це найшвидше повертає час і не потребує ШІ.'},
     {q:'Що таке Пульт бізнесу?',k:['пульс','пульт','дашборд','телефон','звіт','аналітик','контрол','менеджер','мфс','звірк'],
      a:'Це пульт Вашого бізнесу в телефоні. Продажі, реклама, залишки, гроші й нічні задачі зведені на один екран, а система сама підсвічує, де потрібна увага. Звіти автоматично звіряються з CRM, робота менеджерів перевіряється без ручного контролю. Ми зробили його для власного магазину й користуємося щодня.'},
     {q:'Скільки це коштує?',k:['цін','кошт','скільки','варт','прайс','грн','євро','eur','оплат','бюджет','дорого','дешев'],
@@ -1271,7 +1274,7 @@ $$('.card').forEach(function(c){
     {q:'Зробите сайт, як цей?',k:['сайт','лендинг','дизайн','візитк','сторінк','магазин на'],
      a:'Так. Цей сайт зібрано без шаблонів і конструкторів: 3D-фон, жива схема й демо написані під нього. Так само зробимо лендинг, магазин на WooCommerce або внутрішній пульт для команди.'}
   ];
-  var OFF='Я консультую лише щодо послуг студії: автоматизація магазину, ШІ-агенти, пульт бізнесу й ШІ-аудит. Розкажіть, що у вашому бізнесі досі робиться руками, і я підкажу, з якого рівня почати.';
+  var OFF='Я консультую лише щодо послуг студії: автоматизація магазину, ШІ-агенти, пульт бізнесу й ШІ-аудит. Розкажіть, що у вашому бізнесі досі робиться руками, і я підкажу, з якого тарифу почати.';
   function add(cls,txt){var d=document.createElement('div');d.className='msg '+cls;d.textContent=txt||'';chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
   function pick(v){var low=v.toLowerCase(),best=null,score=0;QA.forEach(function(x){var s=x.k.filter(function(k){return low.indexOf(k)>-1}).length;if(s>score){score=s;best=x}});return best?best.a+(left%3===0?CTA:''):OFF}
   async function live(v){
